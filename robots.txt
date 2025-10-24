@@ -1,1 +1,221 @@
-  
+# ========================================
+# Calculator Website - robots.txt
+# ========================================
+# This file tells search engine crawlers which pages
+# they can and cannot access on your website.
+# ========================================
+
+# Allow all well-behaved bots to crawl the entire site
+User-agent: *
+Allow: /
+
+# ========================================
+# DISALLOW SPECIFIC DIRECTORIES
+# ========================================
+
+# Block admin area
+Disallow: /admin/
+Disallow: /admin
+
+# Block includes directory
+Disallow: /includes/
+
+# Block API endpoints (optional - allow if you want them indexed)
+Disallow: /api/
+
+# Block database directory
+Disallow: /database/
+
+# Block logs directory
+Disallow: /logs/
+
+# Block temporary files
+Disallow: /temp/
+Disallow: /tmp/
+Disallow: /cache/
+
+# ========================================
+# DISALLOW SPECIFIC FILE TYPES
+# ========================================
+
+# Block configuration files
+Disallow: /*.sql$
+Disallow: /*.log$
+Disallow: /*.md$
+Disallow: /config.php
+
+# Block backup files
+Disallow: /*.bak$
+Disallow: /*.backup$
+Disallow: /*.old$
+
+# ========================================
+# DISALLOW SPECIFIC PAGES
+# ========================================
+
+# Block search results pages (to prevent duplicate content)
+Disallow: /search?
+Disallow: /search.php?
+
+# Block print versions
+Disallow: /*?print=true
+Disallow: /*?print=1
+
+# Block sorting and filtering URLs
+Disallow: /*?sort=
+Disallow: /*?filter=
+
+# Block session IDs
+Disallow: /*?PHPSESSID=
+Disallow: /*?sessionid=
+
+# ========================================
+# SPECIFIC BOT RULES
+# ========================================
+
+# Google Bot - Allow everything
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Google Image Bot
+User-agent: Googlebot-Image
+Allow: /assets/images/
+Disallow: /admin/
+
+# Google Mobile Bot
+User-agent: Googlebot-Mobile
+Allow: /
+Crawl-delay: 0
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yahoo Bot
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# DuckDuckGo Bot
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+# Yandex Bot
+User-agent: Yandex
+Allow: /
+Crawl-delay: 2
+
+# Baidu Bot
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+# ========================================
+# BLOCK BAD BOTS
+# ========================================
+
+# Block aggressive crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: dotbot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: Baiduspider
+Crawl-delay: 5
+
+# Block scrapers
+User-agent: HTTrack
+Disallow: /
+
+User-agent: WebReaper
+Disallow: /
+
+User-agent: WebCopier
+Disallow: /
+
+User-agent: Offline Explorer
+Disallow: /
+
+User-agent: Teleport
+Disallow: /
+
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: WebStripper
+Disallow: /
+
+User-agent: WebSucker
+Disallow: /
+
+User-agent: WebZip
+Disallow: /
+
+# Block email harvesters
+User-agent: EmailCollector
+Disallow: /
+
+User-agent: EmailSiphon
+Disallow: /
+
+User-agent: EmailWolf
+Disallow: /
+
+# ========================================
+# SITEMAPS
+# ========================================
+
+# XML Sitemap location
+Sitemap: https://www.yourdomain.com/sitemap.xml
+
+# Additional sitemaps (if you create them)
+# Sitemap: https://www.yourdomain.com/sitemap-calculators.xml
+# Sitemap: https://www.yourdomain.com/sitemap-categories.xml
+# Sitemap: https://www.yourdomain.com/sitemap-pages.xml
+
+# ========================================
+# CRAWL RATE
+# ========================================
+
+# Default crawl delay for all bots (in seconds)
+# Uncomment if you want to slow down all crawlers
+# Crawl-delay: 1
+
+# ========================================
+# HOST DIRECTIVE (Optional)
+# ========================================
+
+# Specify preferred domain (www vs non-www)
+# Uncomment one of these:
+# Host: https://www.yourdomain.com
+# Host: https://yourdomain.com
+
+# ========================================
+# NOTES
+# ========================================
+# 
+# 1. Replace "yourdomain.com" with your actual domain
+# 2. Test this file using Google Search Console
+# 3. Monitor crawl errors regularly
+# 4. Update sitemaps after adding new calculators
+# 5. Review and update quarterly
+#
+# ========================================
+# END OF ROBOTS.TXT
+# ========================================  
