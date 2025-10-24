@@ -1,1 +1,582 @@
-  
+/**
+ * Dark Mode Stylesheet - Calculator Hub
+ * 
+ * Complete dark theme implementation:
+ * - Dark color scheme
+ * - Smooth transitions
+ * - Theme toggle support
+ * - Component overrides
+ * - Accessibility considerations
+ * 
+ * @package CalculatorWebsite
+ * @version 1.0.0
+ */
+
+/* ============================================
+   DARK THEME VARIABLES
+   ============================================ */
+
+:root[data-theme="dark"] {
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    
+    /* Text Colors */
+    --text-primary: #f8f9fa;
+    --text-secondary: #adb5bd;
+    --text-tertiary: #868e96;
+    --text-muted: #6c757d;
+    --text-inverse: #212529;
+    
+    /* Border Colors */
+    --border-color: #495057;
+    --border-light: #3a3a3a;
+    --border-dark: #212529;
+    
+    /* Primary Colors (Adjusted for dark mode) */
+    --primary: #0d6efd;
+    --primary-hover: #0a58ca;
+    --primary-light: #1e3a5f;
+    --primary-dark: #3d8bfd;
+    
+    /* Secondary Colors */
+    --secondary: #6c757d;
+    --secondary-hover: #838b93;
+    --secondary-light: #495057;
+    --secondary-dark: #adb5bd;
+    
+    /* Success Colors */
+    --success: #198754;
+    --success-hover: #146c43;
+    --success-light: #0f3d29;
+    --success-dark: #4ade80;
+    
+    /* Danger Colors */
+    --danger: #dc3545;
+    --danger-hover: #bb2d3b;
+    --danger-light: #5a1f27;
+    --danger-dark: #ea868f;
+    
+    /* Warning Colors */
+    --warning: #ffc107;
+    --warning-hover: #ffca2c;
+    --warning-light: #664d03;
+    --warning-dark: #ffda6a;
+    
+    /* Info Colors */
+    --info: #0dcaf0;
+    --info-hover: #3dd5f3;
+    --info-light: #055160;
+    --info-dark: #6edff6;
+    
+    /* Shadow System (Darker/Heavier) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.6);
+    --shadow-2xl: 0 16px 48px rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================
+   THEME TRANSITION
+   ============================================ */
+
+body,
+.navbar,
+.card,
+.btn,
+.form-control,
+.calculator-main,
+.sidebar,
+.footer {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease;
+}
+
+/* ============================================
+   DARK MODE SPECIFIC STYLES
+   ============================================ */
+
+:root[data-theme="dark"] body {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+}
+
+/* Header & Navigation */
+:root[data-theme="dark"] .site-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .top-bar {
+    background: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .sticky-nav {
+    background: rgba(26, 26, 26, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Search Bar */
+:root[data-theme="dark"] .search-input {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .search-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+:root[data-theme="dark"] .search-results {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .autocomplete-item:hover {
+    background: var(--bg-tertiary);
+}
+
+/* Buttons */
+:root[data-theme="dark"] .btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .btn-secondary:hover:not(:disabled) {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+:root[data-theme="dark"] .btn-outline-primary:hover:not(:disabled) {
+    background: var(--primary);
+    color: white;
+}
+
+/* Forms */
+:root[data-theme="dark"] .form-control {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .form-control:focus {
+    background: var(--bg-tertiary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+:root[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-tertiary);
+}
+
+:root[data-theme="dark"] .form-control:disabled {
+    background: var(--bg-tertiary);
+    opacity: 0.5;
+}
+
+:root[data-theme="dark"] .input-group-text {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Cards */
+:root[data-theme="dark"] .card {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .card-header,
+:root[data-theme="dark"] .card-footer {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
+/* Category & Calculator Cards */
+:root[data-theme="dark"] .category-card,
+:root[data-theme="dark"] .calculator-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .category-card:hover,
+:root[data-theme="dark"] .calculator-card:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary);
+}
+
+/* Hero Section */
+:root[data-theme="dark"] .hero-section {
+    background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+}
+
+:root[data-theme="dark"] .hero-search-input {
+    background: white;
+    color: #212529;
+}
+
+/* Alerts */
+:root[data-theme="dark"] .alert-primary {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border-color: var(--primary);
+}
+
+:root[data-theme="dark"] .alert-success {
+    background: var(--success-light);
+    color: var(--success-dark);
+    border-color: var(--success);
+}
+
+:root[data-theme="dark"] .alert-danger {
+    background: var(--danger-light);
+    color: var(--danger-dark);
+    border-color: var(--danger);
+}
+
+:root[data-theme="dark"] .alert-warning {
+    background: var(--warning-light);
+    color: var(--warning-dark);
+    border-color: var(--warning);
+}
+
+:root[data-theme="dark"] .alert-info {
+    background: var(--info-light);
+    color: var(--info-dark);
+    border-color: var(--info);
+}
+
+/* Calculator Components */
+:root[data-theme="dark"] .calculator-main {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .calculator-input {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .calculator-input:focus {
+    background: var(--bg-primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+}
+
+:root[data-theme="dark"] .calculator-select {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230d6efd' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] .calculator-display {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .calculator-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .calculator-btn:hover {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .calculator-result {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #1e3a5f 100%);
+    border-color: var(--primary);
+}
+
+:root[data-theme="dark"] .result-main {
+    background: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .result-item {
+    background: var(--bg-secondary);
+}
+
+/* Sidebar */
+:root[data-theme="dark"] .sidebar-section {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .popular-item:hover,
+:root[data-theme="dark"] .recent-item:hover {
+    background: var(--bg-tertiary);
+}
+
+/* Footer */
+:root[data-theme="dark"] .site-footer {
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-color);
+}
+
+:root[data-theme="dark"] .footer-bottom {
+    background: var(--bg-secondary);
+    border-top-color: var(--border-color);
+}
+
+/* Dropdown Menus */
+:root[data-theme="dark"] .dropdown-menu {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .dropdown-header {
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .dropdown-item:hover {
+    background: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .dropdown-footer {
+    border-top-color: var(--border-color);
+}
+
+/* Mobile Navigation */
+:root[data-theme="dark"] .mobile-navigation {
+    background: var(--bg-primary);
+}
+
+:root[data-theme="dark"] .mobile-nav-header {
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .mobile-nav-link:hover {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .mobile-submenu {
+    background: var(--bg-secondary);
+}
+
+/* Tables */
+:root[data-theme="dark"] .comparison-table {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .comparison-table th {
+    background: var(--primary);
+}
+
+:root[data-theme="dark"] .comparison-table td {
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .comparison-table tr:hover {
+    background: var(--bg-tertiary);
+}
+
+/* Badges */
+:root[data-theme="dark"] .badge-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Tooltips & Popovers */
+:root[data-theme="dark"] .tooltip {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Code Blocks */
+:root[data-theme="dark"] code,
+:root[data-theme="dark"] .formula-box {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Scrollbar (Webkit) */
+:root[data-theme="dark"] ::-webkit-scrollbar {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Selection */
+:root[data-theme="dark"] ::selection {
+    background: var(--primary);
+    color: white;
+}
+
+:root[data-theme="dark"] ::-moz-selection {
+    background: var(--primary);
+    color: white;
+}
+
+/* ============================================
+   DARK MODE IMAGES & MEDIA
+   ============================================ */
+
+:root[data-theme="dark"] img {
+    opacity: 0.9;
+}
+
+:root[data-theme="dark"] img:hover {
+    opacity: 1;
+}
+
+/* Logo inversion (if needed) */
+:root[data-theme="dark"] .logo-image.invert {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* ============================================
+   DARK MODE SHADOWS & GLOWS
+   ============================================ */
+
+:root[data-theme="dark"] .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.4);
+}
+
+:root[data-theme="dark"] .shadow-colored {
+    box-shadow: 0 4px 16px rgba(13, 110, 253, 0.3);
+}
+
+/* ============================================
+   DARK MODE LOADING STATES
+   ============================================ */
+
+:root[data-theme="dark"] .skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-secondary) 0%,
+        var(--bg-tertiary) 50%,
+        var(--bg-secondary) 100%
+    );
+}
+
+:root[data-theme="dark"] .loading-bar {
+    background: var(--bg-tertiary);
+}
+
+/* ============================================
+   DARK MODE ACCESSIBILITY
+   ============================================ */
+
+/* Ensure sufficient contrast */
+:root[data-theme="dark"] .text-light {
+    color: var(--text-tertiary) !important;
+}
+
+/* Focus visible in dark mode */
+:root[data-theme="dark"] *:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   THEME TOGGLE BUTTON
+   ============================================ */
+
+.theme-toggle {
+    position: relative;
+}
+
+:root[data-theme="dark"] .theme-toggle {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Icon visibility */
+:root[data-theme="light"] .dark-icon {
+    display: block;
+}
+
+:root[data-theme="light"] .light-icon {
+    display: none;
+}
+
+:root[data-theme="dark"] .dark-icon {
+    display: none;
+}
+
+:root[data-theme="dark"] .light-icon {
+    display: block;
+}
+
+/* ============================================
+   DARK MODE GRADIENTS
+   ============================================ */
+
+:root[data-theme="dark"] .animated-gradient {
+    background: linear-gradient(
+        -45deg,
+        #1e3a8a,
+        #7c3aed,
+        #0d6efd,
+        #198754
+    );
+}
+
+:root[data-theme="dark"] .gradient-primary {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0d6efd 100%);
+}
+
+/* ============================================
+   HIGH CONTRAST DARK MODE
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    :root[data-theme="dark"] {
+        --bg-primary: #000000;
+        --bg-secondary: #1a1a1a;
+        --text-primary: #ffffff;
+        --border-color: #ffffff;
+    }
+    
+    :root[data-theme="dark"] .btn,
+    :root[data-theme="dark"] .card,
+    :root[data-theme="dark"] .form-control {
+        border-width: 3px;
+    }
+}
+
+/* ============================================
+   PRINT MODE (OVERRIDE DARK THEME)
+   ============================================ */
+
+@media print {
+    :root[data-theme="dark"] body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    :root[data-theme="dark"] * {
+        background: white !important;
+        color: black !important;
+        border-color: black !important;
+    }
+}  
