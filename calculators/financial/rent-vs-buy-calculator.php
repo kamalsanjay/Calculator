@@ -1,0 +1,353 @@
+<?php
+/**
+ * Rent vs Buy Calculator
+ * File: rent-vs-buy-calculator.php
+ * Description: Compare renting vs buying a home (USD/INR/EUR/GBP)
+ */
+
+$page_title = "Rent vs Buy Calculator - Should I Rent or Buy? (USD/INR/EUR/GBP)";
+$page_description = "Free rent vs buy calculator. Compare renting versus buying a home over time. Factor in mortgage, rent, appreciation, and opportunity costs. USD, INR, EUR, GBP.";
+
+include 'includes/header.php';
+?>
+
+<header>
+    <h1>🏠 Rent vs Buy Calculator</h1>
+    <p>Compare the true cost of renting versus buying a home</p>
+</header>
+
+<div class="container">
+    <div class="breadcrumb">
+        <a href="index.php">← Back to Financial Calculators</a>
+    </div>
+
+    <div class="calculator-wrapper">
+        <div class="calculator-section">
+            <h2>Compare Rent vs Buy</h2>
+            <form id="rentBuyForm">
+                <div class="form-group">
+                    <label for="currency">Currency</label>
+                    <select id="currency">
+                        <option value="USD">USD ($)</option>
+                        <option value="INR">INR (₹)</option>
+                        <option value="EUR">EUR (€)</option>
+                        <option value="GBP">GBP (£)</option>
+                    </select>
+                </div>
+                
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Buying Scenario</h3>
+                
+                <div class="form-group">
+                    <label for="homePrice">Home Price (<span id="currencyLabel1">$</span>)</label>
+                    <input type="number" id="homePrice" value="300000" min="50000" step="5000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="downPayment">Down Payment (<span id="currencyLabel2">$</span>)</label>
+                    <input type="number" id="downPayment" value="60000" min="0" step="5000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="mortgageRate">Mortgage Rate (%)</label>
+                    <input type="number" id="mortgageRate" value="7" min="1" max="15" step="0.1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="propertyTax">Annual Property Tax (<span id="currencyLabel3">$</span>)</label>
+                    <input type="number" id="propertyTax" value="3000" min="0" step="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="maintenance">Annual Maintenance (<span id="currencyLabel4">$</span>)</label>
+                    <input type="number" id="maintenance" value="3000" min="0" step="100">
+                    <small>Typically 1% of home value</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="appreciation">Home Appreciation Rate (%)</label>
+                    <input type="number" id="appreciation" value="3" min="0" max="10" step="0.1">
+                </div>
+                
+                <h3 style="color: #667eea; margin: 25px 0 15px;">Renting Scenario</h3>
+                
+                <div class="form-group">
+                    <label for="monthlyRent">Monthly Rent (<span id="currencyLabel5">$</span>)</label>
+                    <input type="number" id="monthlyRent" value="1800" min="500" step="50" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rentIncrease">Annual Rent Increase (%)</label>
+                    <input type="number" id="rentIncrease" value="3" min="0" max="10" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="yearsToCompare">Years to Compare</label>
+                    <input type="number" id="yearsToCompare" value="5" min="1" max="30" step="1" required>
+                </div>
+                
+                <button type="submit" class="btn">Compare Rent vs Buy</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <h2>Cost Comparison</h2>
+            
+            <div class="result-card success">
+                <h3 id="recommendationTitle">Better Option</h3>
+                <div class="amount" id="recommendation">Calculate</div>
+            </div>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <h4>Total Cost to Buy</h4>
+                    <div class="value" id="totalBuyCost">$0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Total Cost to Rent</h4>
+                    <div class="value" id="totalRentCost">$0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Home Equity Built</h4>
+                    <div class="value" id="equityBuilt">$0</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Net Difference</h4>
+                    <div class="value" id="netDifference">$0</div>
+                </div>
+            </div>
+
+            <div class="breakdown">
+                <h3>Buying Costs</h3>
+                <div class="breakdown-item">
+                    <span>Down Payment</span>
+                    <strong id="downPaymentDisplay">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Monthly Mortgage Payment</span>
+                    <strong id="mortgagePayment">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Total Mortgage Payments</span>
+                    <strong id="totalMortgage">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Total Property Tax</span>
+                    <strong id="totalPropertyTax">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Total Maintenance</span>
+                    <strong id="totalMaintenance">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Closing Costs (3%)</span>
+                    <strong id="closingCosts">$0</strong>
+                </div>
+                <div class="breakdown-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                    <span><strong>Total Cost to Buy</strong></span>
+                    <strong id="buyTotal" style="color: #667eea; font-size: 1.1em;">$0</strong>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px;">
+                <h3>Renting Costs</h3>
+                <div class="breakdown-item">
+                    <span>Starting Monthly Rent</span>
+                    <strong id="startingRent">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Rent Increase Rate</span>
+                    <strong id="rentIncreaseRate">0%</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Security Deposit (1 month)</span>
+                    <strong id="securityDeposit">$0</strong>
+                </div>
+                <div class="breakdown-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                    <span><strong>Total Cost to Rent</strong></span>
+                    <strong id="rentTotal" style="color: #667eea; font-size: 1.1em;">$0</strong>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px;">
+                <h3>Home Ownership Benefits</h3>
+                <div class="breakdown-item">
+                    <span>Home Value After Period</span>
+                    <strong id="futureHomeValue" style="color: #4CAF50;">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Remaining Mortgage</span>
+                    <strong id="remainingMortgage">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Home Equity Built</span>
+                    <strong id="homeEquity" style="color: #4CAF50; font-size: 1.1em;">$0</strong>
+                </div>
+            </div>
+
+            <div class="breakdown" style="margin-top: 20px;">
+                <h3>Net Cost Analysis</h3>
+                <div class="breakdown-item">
+                    <span>Buy: Total Cost - Equity</span>
+                    <strong id="netBuyCost">$0</strong>
+                </div>
+                <div class="breakdown-item">
+                    <span>Rent: Total Cost</span>
+                    <strong id="netRentCost">$0</strong>
+                </div>
+                <div class="breakdown-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                    <span><strong>Difference (Rent - Buy)</strong></span>
+                    <strong id="finalDifference" style="color: #667eea; font-size: 1.2em;">$0</strong>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <strong>Rent vs Buy Factors:</strong> Buying builds equity and wealth. Renting offers flexibility. Consider: job stability, local market, down payment ready, maintenance comfort, tax benefits (mortgage interest deduction), break-even typically 3-5 years.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('rentBuyForm');
+    const currencySelect = document.getElementById('currency');
+
+    currencySelect.addEventListener('change', function() {
+        updateCurrencyLabels();
+        calculateRentVsBuy();
+    });
+
+    function updateCurrencyLabels() {
+        const currency = currencySelect.value;
+        const symbols = {
+            'USD': '$',
+            'INR': '₹',
+            'EUR': '€',
+            'GBP': '£'
+        };
+        const symbol = symbols[currency];
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('currencyLabel' + i).textContent = symbol;
+        }
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        calculateRentVsBuy();
+    });
+
+    function calculateRentVsBuy() {
+        const homePrice = parseFloat(document.getElementById('homePrice').value) || 0;
+        const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+        const mortgageRate = parseFloat(document.getElementById('mortgageRate').value) / 100 || 0;
+        const propertyTax = parseFloat(document.getElementById('propertyTax').value) || 0;
+        const maintenance = parseFloat(document.getElementById('maintenance').value) || 0;
+        const appreciation = parseFloat(document.getElementById('appreciation').value) / 100 || 0;
+        const monthlyRent = parseFloat(document.getElementById('monthlyRent').value) || 0;
+        const rentIncrease = parseFloat(document.getElementById('rentIncrease').value) / 100 || 0;
+        const years = parseInt(document.getElementById('yearsToCompare').value) || 5;
+        const currency = currencySelect.value;
+
+        // Buying calculations
+        const loanAmount = homePrice - downPayment;
+        const monthlyRate = mortgageRate / 12;
+        const numberOfPayments = 30 * 12; // 30-year mortgage
+        
+        let mortgagePayment = 0;
+        if (monthlyRate > 0) {
+            mortgagePayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
+                            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+        } else {
+            mortgagePayment = loanAmount / numberOfPayments;
+        }
+
+        const totalMortgagePayments = mortgagePayment * (years * 12);
+        const totalPropertyTax = propertyTax * years;
+        const totalMaintenance = maintenance * years;
+        const closingCosts = homePrice * 0.03;
+        const totalBuyCost = downPayment + totalMortgagePayments + totalPropertyTax + totalMaintenance + closingCosts;
+
+        // Calculate remaining mortgage balance after years
+        let balance = loanAmount;
+        for (let i = 0; i < years * 12; i++) {
+            const interest = balance * monthlyRate;
+            const principal = mortgagePayment - interest;
+            balance -= principal;
+        }
+        const remainingMortgage = Math.max(0, balance);
+
+        // Home appreciation
+        const futureHomeValue = homePrice * Math.pow(1 + appreciation, years);
+        const homeEquity = futureHomeValue - remainingMortgage;
+
+        // Renting calculations
+        let totalRentCost = monthlyRent; // Security deposit
+        let currentRent = monthlyRent;
+        
+        for (let year = 0; year < years; year++) {
+            totalRentCost += currentRent * 12;
+            currentRent = currentRent * (1 + rentIncrease);
+        }
+
+        // Net cost analysis
+        const netBuyCost = totalBuyCost - homeEquity;
+        const netRentCost = totalRentCost;
+        const difference = netRentCost - netBuyCost;
+
+        // Recommendation
+        let recommendation = '';
+        let recommendationTitle = '';
+        if (difference > 0) {
+            recommendation = 'Buying is Better';
+            recommendationTitle = 'Buy Saves ' + formatCurrency(Math.abs(difference), currency);
+        } else {
+            recommendation = 'Renting is Better';
+            recommendationTitle = 'Rent Saves ' + formatCurrency(Math.abs(difference), currency);
+        }
+
+        // Update UI
+        document.getElementById('recommendation').textContent = recommendation;
+        document.getElementById('recommendationTitle').textContent = recommendationTitle;
+        document.getElementById('totalBuyCost').textContent = formatCurrency(totalBuyCost, currency);
+        document.getElementById('totalRentCost').textContent = formatCurrency(totalRentCost, currency);
+        document.getElementById('equityBuilt').textContent = formatCurrency(homeEquity, currency);
+        document.getElementById('netDifference').textContent = formatCurrency(Math.abs(difference), currency);
+
+        document.getElementById('downPaymentDisplay').textContent = formatCurrency(downPayment, currency);
+        document.getElementById('mortgagePayment').textContent = formatCurrency(mortgagePayment, currency);
+        document.getElementById('totalMortgage').textContent = formatCurrency(totalMortgagePayments, currency);
+        document.getElementById('totalPropertyTax').textContent = formatCurrency(totalPropertyTax, currency);
+        document.getElementById('totalMaintenance').textContent = formatCurrency(totalMaintenance, currency);
+        document.getElementById('closingCosts').textContent = formatCurrency(closingCosts, currency);
+        document.getElementById('buyTotal').textContent = formatCurrency(totalBuyCost, currency);
+
+        document.getElementById('startingRent').textContent = formatCurrency(monthlyRent, currency);
+        document.getElementById('rentIncreaseRate').textContent = (rentIncrease * 100).toFixed(1) + '%';
+        document.getElementById('securityDeposit').textContent = formatCurrency(monthlyRent, currency);
+        document.getElementById('rentTotal').textContent = formatCurrency(totalRentCost, currency);
+
+        document.getElementById('futureHomeValue').textContent = formatCurrency(futureHomeValue, currency);
+        document.getElementById('remainingMortgage').textContent = formatCurrency(remainingMortgage, currency);
+        document.getElementById('homeEquity').textContent = formatCurrency(homeEquity, currency);
+
+        document.getElementById('netBuyCost').textContent = formatCurrency(netBuyCost, currency);
+        document.getElementById('netRentCost').textContent = formatCurrency(netRentCost, currency);
+        document.getElementById('finalDifference').textContent = formatCurrency(difference, currency);
+    }
+
+    function formatCurrency(amount, currency) {
+        const locale = currency === 'INR' ? 'en-IN' : currency === 'EUR' ? 'de-DE' : currency === 'GBP' ? 'en-GB' : 'en-US';
+        return new Intl.NumberFormat(locale, {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
+
+    window.addEventListener('load', function() {
+        updateCurrencyLabels();
+        calculateRentVsBuy();
+    });
+</script>
+
+<?php include 'includes/footer.php'; ?>
