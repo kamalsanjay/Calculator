@@ -360,4 +360,4 @@ if (file_exists(INCLUDES_PATH . 'functions.php')) {
  * CONFIGURATION COMPLETE
  * ========================================
  * All configuration values are now available throughout the application
- */  
+ */   
