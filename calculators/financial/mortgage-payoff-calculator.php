@@ -1,0 +1,429 @@
+<?php
+/**
+ * Mortgage Payoff Calculator
+ * File: mortgage-payoff-calculator.php
+ * Description: Calculate mortgage payoff with extra payments (USD/INR/EUR/GBP)
+ */
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortgage Payoff Calculator - Calculate Payoff with Extra Payments (USD/INR/EUR/GBP)</title>
+    <meta name="description" content="Free mortgage payoff calculator. Calculate how extra payments reduce mortgage term and save interest. Supports USD, INR, EUR, and GBP.">
+    <link rel="stylesheet" href="assets/css/calculator.css">
+</head>
+<body>
+    <header>
+        <h1>&#127968; Mortgage Payoff Calculator</h1>
+        <p>Calculate payoff time with extra payments</p>
+    </header>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="index.php">&larr; Back to Financial Calculators</a>
+        </div>
+
+        <div class="calculator-wrapper">
+            <div class="calculator-section">
+                <h2>Mortgage Details</h2>
+                <form id="mortgageForm">
+                    <div class="form-group">
+                        <label for="currency">Currency</label>
+                        <select id="currency">
+                            <option value="USD">USD (&#36;)</option>
+                            <option value="INR">INR (&#8377;)</option>
+                            <option value="EUR">EUR (&#8364;)</option>
+                            <option value="GBP">GBP (&#163;)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remainingBalance">Remaining Balance (<span id="currencyLabel1">$</span>)</label>
+                        <input type="number" id="remainingBalance" value="250000" min="1000" step="1000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="interestRate">Interest Rate (% APR)</label>
+                        <input type="number" id="interestRate" value="6.5" min="0" max="30" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remainingTerm">Remaining Term (Years)</label>
+                        <input type="number" id="remainingTerm" value="25" min="1" max="50" step="1" required>
+                    </div>
+                    
+                    <h3 style="color: #667eea; margin: 25px 0 15px;">Extra Payment Options</h3>
+                    
+                    <div class="form-group">
+                        <label for="extraMonthly">Extra Monthly Payment (<span id="currencyLabel2">$</span>)</label>
+                        <input type="number" id="extraMonthly" value="200" min="0" step="50">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="extraYearly">Extra Yearly Payment (<span id="currencyLabel3">$</span>)</label>
+                        <input type="number" id="extraYearly" value="0" min="0" step="100">
+                        <small>One-time annual payment</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="oneTimePayment">One-Time Extra Payment (<span id="currencyLabel4">$</span>)</label>
+                        <input type="number" id="oneTimePayment" value="0" min="0" step="1000">
+                        <small>Lump sum payment now</small>
+                    </div>
+                    
+                    <button type="submit" class="btn">Calculate Payoff</button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <h2>Payoff Analysis</h2>
+                
+                <div class="result-card success">
+                    <h3>Interest Savings</h3>
+                    <div class="amount" id="interestSavings">$0</div>
+                </div>
+
+                <div class="metric-grid">
+                    <div class="metric-card">
+                        <h4>Time Saved</h4>
+                        <div class="value" id="timeSaved">0 years</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>New Payoff Time</h4>
+                        <div class="value" id="newPayoffTime">20 years</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>Total Extra Payments</h4>
+                        <div class="value" id="totalExtra">$0</div>
+                    </div>
+                    <div class="metric-card">
+                        <h4>ROI on Extra Payments</h4>
+                        <div class="value" id="roi">0%</div>
+                    </div>
+                </div>
+
+                <div class="breakdown">
+                    <h3>Original Mortgage</h3>
+                    <div class="breakdown-item">
+                        <span>Remaining Balance</span>
+                        <strong id="balanceDisplay">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Interest Rate</span>
+                        <strong id="rateDisplay">6.5% APR</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Remaining Term</span>
+                        <strong id="termDisplay">25 years</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Monthly Payment</span>
+                        <strong id="monthlyPayment" style="color: #667eea;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Interest (Original)</span>
+                        <strong id="originalInterest" style="color: #f44336;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Paid (Original)</span>
+                        <strong id="originalTotal">$0</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>With Extra Payments</h3>
+                    <div class="breakdown-item">
+                        <span>Monthly Payment</span>
+                        <strong id="newMonthlyPayment" style="color: #667eea;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Extra Monthly</span>
+                        <strong id="extraMonthlyDisplay" style="color: #4CAF50;">+$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Monthly Payment</span>
+                        <strong id="totalMonthlyNew" style="color: #667eea; font-size: 1.1em;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>New Payoff Time</span>
+                        <strong id="newTerm" style="color: #4CAF50;">0 years</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Interest (New)</span>
+                        <strong id="newInterest" style="color: #4CAF50;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Paid (New)</span>
+                        <strong id="newTotal">$0</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>Savings Summary</h3>
+                    <div class="breakdown-item">
+                        <span>Interest Saved</span>
+                        <strong id="interestSaved" style="color: #4CAF50; font-size: 1.2em;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Time Saved</span>
+                        <strong id="timeSavedMonths" style="color: #4CAF50;">0 months (0 years)</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Extra Paid</span>
+                        <strong id="totalExtraPaid">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Return on Extra Payments</span>
+                        <strong id="returnRate" style="color: #667eea;">0%</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>Extra Payment Breakdown</h3>
+                    <div class="breakdown-item">
+                        <span>Extra Monthly Payments</span>
+                        <strong id="extraMonthlyTotal">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Extra Yearly Payments</span>
+                        <strong id="extraYearlyTotal">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>One-Time Payment</span>
+                        <strong id="oneTimeTotal">$0</strong>
+                    </div>
+                    <div class="breakdown-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                        <span><strong>Total Extra Payments</strong></span>
+                        <strong id="totalExtraSum" style="color: #4CAF50; font-size: 1.1em;">$0</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>Payoff Timeline</h3>
+                    <div class="breakdown-item">
+                        <span>Original Payoff</span>
+                        <strong id="originalPayoff">25 years</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>New Payoff</span>
+                        <strong id="newPayoff" style="color: #4CAF50;">20 years</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Months Saved</span>
+                        <strong id="monthsSaved" style="color: #4CAF50;">60 months</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Years Saved</span>
+                        <strong id="yearsSaved" style="color: #4CAF50;">5 years</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>Balance Milestones</h3>
+                    <div class="breakdown-item">
+                        <span>After 5 Years (Original)</span>
+                        <strong id="balance5Orig">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>After 5 Years (With Extra)</span>
+                        <strong id="balance5New" style="color: #4CAF50;">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>After 10 Years (Original)</span>
+                        <strong id="balance10Orig">$0</strong>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>After 10 Years (With Extra)</span>
+                        <strong id="balance10New" style="color: #4CAF50;">$0</strong>
+                    </div>
+                </div>
+
+                <div class="breakdown" style="margin-top: 20px;">
+                    <h3>What This Means</h3>
+                    <div id="analysis" style="padding: 15px; background: white; border-radius: 5px; line-height: 1.8;">
+                        <p id="analysisText" style="margin: 0;"></p>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>Payoff Tips:</strong> Extra payments go directly to principal. Even small extra payments save big. Pay bi-weekly = 1 extra monthly payment/year. Round up payments. Apply windfalls (bonus, tax refund). Specify "apply to principal" when paying. No prepayment penalties? Check first. Refinance vs extra payment? Compare. Consider opportunity cost. Emergency fund first. Mortgage vs investing? Depends on rates. Tax deduction value? High-rate debt first.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('mortgageForm');
+        const currencySelect = document.getElementById('currency');
+
+        currencySelect.addEventListener('change', function() {
+            updateCurrencyLabels();
+            calculatePayoff();
+        });
+
+        function updateCurrencyLabels() {
+            const currency = currencySelect.value;
+            const symbols = {
+                'USD': '$',
+                'INR': '₹',
+                'EUR': '€',
+                'GBP': '£'
+            };
+            const symbol = symbols[currency];
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById('currencyLabel' + i).textContent = symbol;
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculatePayoff();
+        });
+
+        function calculatePayoff() {
+            const remainingBalance = parseFloat(document.getElementById('remainingBalance').value) || 0;
+            const annualRate = parseFloat(document.getElementById('interestRate').value) / 100 || 0;
+            const remainingYears = parseInt(document.getElementById('remainingTerm').value) || 25;
+            const extraMonthly = parseFloat(document.getElementById('extraMonthly').value) || 0;
+            const extraYearly = parseFloat(document.getElementById('extraYearly').value) || 0;
+            const oneTimePayment = parseFloat(document.getElementById('oneTimePayment').value) || 0;
+            const currency = currencySelect.value;
+
+            const monthlyRate = annualRate / 12;
+            const originalMonths = remainingYears * 12;
+
+            // Calculate original monthly payment
+            let monthlyPayment = 0;
+            if (monthlyRate > 0) {
+                monthlyPayment = (remainingBalance * monthlyRate * Math.pow(1 + monthlyRate, originalMonths)) /
+                               (Math.pow(1 + monthlyRate, originalMonths) - 1);
+            } else {
+                monthlyPayment = remainingBalance / originalMonths;
+            }
+
+            // Calculate original totals
+            const originalTotalPaid = monthlyPayment * originalMonths;
+            const originalInterest = originalTotalPaid - remainingBalance;
+
+            // Calculate with extra payments
+            let balance = remainingBalance - oneTimePayment;
+            let monthsNew = 0;
+            let totalInterestNew = 0;
+            let totalExtraMonthly = 0;
+            let totalExtraYearly = 0;
+            let balance5New = 0, balance10New = 0;
+            let balance5Orig = 0, balance10Orig = 0;
+
+            // Calculate original milestones
+            let balanceOrig = remainingBalance;
+            for (let month = 1; month <= Math.min(120, originalMonths); month++) {
+                const interest = balanceOrig * monthlyRate;
+                const principal = monthlyPayment - interest;
+                balanceOrig -= principal;
+                
+                if (month === 60) balance5Orig = balanceOrig;
+                if (month === 120) balance10Orig = balanceOrig;
+            }
+
+            // Calculate with extra payments
+            while (balance > 0 && monthsNew < originalMonths * 2) {
+                monthsNew++;
+                const interest = balance * monthlyRate;
+                let principalPayment = monthlyPayment - interest + extraMonthly;
+                
+                // Add yearly payment
+                if (monthsNew % 12 === 0) {
+                    principalPayment += extraYearly;
+                    totalExtraYearly += extraYearly;
+                }
+                
+                totalExtraMonthly += extraMonthly;
+                principalPayment = Math.min(principalPayment, balance + interest);
+                
+                balance -= (principalPayment - interest);
+                totalInterestNew += interest;
+
+                if (monthsNew === 60) balance5New = Math.max(0, balance);
+                if (monthsNew === 120) balance10New = Math.max(0, balance);
+                
+                if (balance <= 0) break;
+            }
+
+            const timeSavedMonths = originalMonths - monthsNew;
+            const timeSavedYears = timeSavedMonths / 12;
+            const interestSaved = originalInterest - totalInterestNew;
+            const totalExtraPaid = totalExtraMonthly + totalExtraYearly + oneTimePayment;
+            const roi = totalExtraPaid > 0 ? (interestSaved / totalExtraPaid) * 100 : 0;
+
+            const newTotalPaid = monthlyPayment * monthsNew + totalExtraPaid;
+
+            // Analysis
+            let analysis = `By paying an extra ${formatCurrency(extraMonthly, currency)} per month`;
+            if (extraYearly > 0) analysis += ` and ${formatCurrency(extraYearly, currency)} annually`;
+            if (oneTimePayment > 0) analysis += ` plus a one-time payment of ${formatCurrency(oneTimePayment, currency)}`;
+            analysis += `, you will save ${formatCurrency(interestSaved, currency)} in interest and pay off your mortgage ${timeSavedYears.toFixed(1)} years earlier. `;
+            analysis += `This is equivalent to earning a ${roi.toFixed(1)}% return on your extra payments.`;
+
+            // Update UI
+            document.getElementById('interestSavings').textContent = formatCurrency(interestSaved, currency);
+            document.getElementById('timeSaved').textContent = timeSavedYears.toFixed(1) + ' years';
+            document.getElementById('newPayoffTime').textContent = (monthsNew / 12).toFixed(1) + ' years';
+            document.getElementById('totalExtra').textContent = formatCurrency(totalExtraPaid, currency);
+            document.getElementById('roi').textContent = roi.toFixed(1) + '%';
+
+            document.getElementById('balanceDisplay').textContent = formatCurrency(remainingBalance, currency);
+            document.getElementById('rateDisplay').textContent = (annualRate * 100).toFixed(2) + '% APR';
+            document.getElementById('termDisplay').textContent = remainingYears + ' years (' + originalMonths + ' months)';
+            document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment, currency);
+            document.getElementById('originalInterest').textContent = formatCurrency(originalInterest, currency);
+            document.getElementById('originalTotal').textContent = formatCurrency(originalTotalPaid, currency);
+
+            document.getElementById('newMonthlyPayment').textContent = formatCurrency(monthlyPayment, currency);
+            document.getElementById('extraMonthlyDisplay').textContent = formatCurrency(extraMonthly, currency);
+            document.getElementById('totalMonthlyNew').textContent = formatCurrency(monthlyPayment + extraMonthly, currency);
+            document.getElementById('newTerm').textContent = (monthsNew / 12).toFixed(1) + ' years (' + monthsNew + ' months)';
+            document.getElementById('newInterest').textContent = formatCurrency(totalInterestNew, currency);
+            document.getElementById('newTotal').textContent = formatCurrency(newTotalPaid, currency);
+
+            document.getElementById('interestSaved').textContent = formatCurrency(interestSaved, currency);
+            document.getElementById('timeSavedMonths').textContent = timeSavedMonths + ' months (' + timeSavedYears.toFixed(1) + ' years)';
+            document.getElementById('totalExtraPaid').textContent = formatCurrency(totalExtraPaid, currency);
+            document.getElementById('returnRate').textContent = roi.toFixed(1) + '% return';
+
+            document.getElementById('extraMonthlyTotal').textContent = formatCurrency(totalExtraMonthly, currency);
+            document.getElementById('extraYearlyTotal').textContent = formatCurrency(totalExtraYearly, currency);
+            document.getElementById('oneTimeTotal').textContent = formatCurrency(oneTimePayment, currency);
+            document.getElementById('totalExtraSum').textContent = formatCurrency(totalExtraPaid, currency);
+
+            document.getElementById('originalPayoff').textContent = remainingYears + ' years (' + originalMonths + ' months)';
+            document.getElementById('newPayoff').textContent = (monthsNew / 12).toFixed(1) + ' years (' + monthsNew + ' months)';
+            document.getElementById('monthsSaved').textContent = timeSavedMonths + ' months';
+            document.getElementById('yearsSaved').textContent = timeSavedYears.toFixed(1) + ' years';
+
+            document.getElementById('balance5Orig').textContent = formatCurrency(Math.max(0, balance5Orig), currency);
+            document.getElementById('balance5New').textContent = formatCurrency(Math.max(0, balance5New), currency);
+            document.getElementById('balance10Orig').textContent = formatCurrency(Math.max(0, balance10Orig), currency);
+            document.getElementById('balance10New').textContent = formatCurrency(Math.max(0, balance10New), currency);
+
+            document.getElementById('analysisText').textContent = analysis;
+        }
+
+        function formatCurrency(amount, currency) {
+            const locale = currency === 'INR' ? 'en-IN' : currency === 'EUR' ? 'de-DE' : currency === 'GBP' ? 'en-GB' : 'en-US';
+            return new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        window.addEventListener('load', function() {
+            updateCurrencyLabels();
+            calculatePayoff();
+        });
+    </script>
+</body>
+</html>
