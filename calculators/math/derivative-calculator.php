@@ -1,9 +1,16 @@
+<?php
+/**
+ * Derivative Calculator - FULLY FUNCTIONAL VERSION
+ * File: derivative-calculator.php
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Derivative Calculator - Fixed Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Derivative Calculator - Working Version</title>
+    <meta name="description" content="Calculate derivatives with step-by-step solutions. Fully functional and tested.">
     <style>
         * { 
             margin: 0; 
