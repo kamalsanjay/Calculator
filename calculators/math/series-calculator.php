@@ -1,9 +1,17 @@
+<?php
+/**
+ * Advanced Series Calculator
+ * File: calculators/series-calculator.php
+ * Description: Calculate arithmetic, geometric, harmonic series with convergence tests, partial sums, and advanced mathematical analysis
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Series Calculator</title>
+    <title>Advanced Series Calculator - Arithmetic, Geometric, Harmonic Series Analysis</title>
+    <meta name="description" content="Calculate arithmetic, geometric, harmonic series with convergence tests, partial sums, and advanced mathematical analysis. Free online series calculator with step-by-step solutions.">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
