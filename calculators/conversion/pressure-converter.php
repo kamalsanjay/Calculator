@@ -5,18 +5,19 @@
  * Description: Convert Pascal to all pressure units (PSI, bar, atm, etc.)
  */
 ?>
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pascal Converter - Pa to PSI, Bar, Atm Pressure Calculator</title>
-    <meta name="description" content="Convert Pascal to PSI, bar, atmosphere, and other pressure units. Universal pressure converter.">
+    <title>Pressure Converter - Universal Pressure Unit Calculator</title>
+    <meta name="description" content="Convert between all pressure units: pascal, bar, psi, atm, torr, mmHg, and more.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); min-height: 100vh; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); min-height: 100vh; padding: 20px; }
         
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
         .header { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .header h1 { color: #2c3e50; font-size: 2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
@@ -24,24 +25,29 @@
         
         .converter-card { background: white; padding: 35px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
         
-        .input-section { margin-bottom: 25px; }
-        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; font-size: 0.95rem; }
-        .input-wrapper { position: relative; }
-        .input-wrapper input { width: 100%; padding: 14px 90px 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s; }
-        .input-wrapper input:focus { outline: none; border-color: #0072ff; box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1); }
-        .unit-label { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #0072ff; font-weight: 600; font-size: 0.95rem; }
+        .converter-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: end; margin-bottom: 25px; }
         
-        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 25px; }
-        .result-card { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #0072ff; }
-        .result-unit { color: #01579b; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
-        .result-value { font-size: 1.8rem; font-weight: bold; color: #0277bd; word-wrap: break-word; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; font-size: 0.95rem; }
+        .input-wrapper input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s; }
+        .input-wrapper input:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1); }
+        
+        .unit-select { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; cursor: pointer; transition: all 0.3s; background: white; margin-top: 10px; }
+        .unit-select:focus { outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1); }
+        
+        .swap-btn { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .swap-btn:hover { transform: rotate(180deg); }
+        
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 25px; }
+        .result-card { background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 18px; border-radius: 10px; border-left: 4px solid #4facfe; }
+        .result-unit { color: #1565c0; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .result-value { font-size: 1.15rem; font-weight: bold; color: #1976d2; word-wrap: break-word; }
         
         .quick-convert { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 25px; }
         .quick-convert h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1rem; }
-        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
         .quick-btn { padding: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .quick-btn:hover { border-color: #0072ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15); }
-        .quick-value { font-weight: bold; color: #0072ff; font-size: 1rem; }
+        .quick-btn:hover { border-color: #4facfe; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 172, 254, 0.15); }
+        .quick-value { font-weight: bold; color: #4facfe; font-size: 1rem; }
         .quick-label { font-size: 0.8rem; color: #7f8c8d; margin-top: 4px; }
         
         .info-section { background: white; padding: 30px; }
@@ -56,12 +62,14 @@
         .conversion-table th { background: #f8f9fa; color: #2c3e50; font-weight: 600; }
         .conversion-table tr:hover { background: #e3f2fd; }
         
-        .formula-box { background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #0072ff; }
-        .formula-box strong { color: #0072ff; }
+        .formula-box { background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4facfe; }
+        .formula-box strong { color: #4facfe; }
         
         .footer { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 0 0 20px 20px; text-align: center; color: #7f8c8d; }
         
         @media (max-width: 768px) {
+            .converter-row { grid-template-columns: 1fr; gap: 15px; }
+            .swap-btn { margin: 10px auto; }
             .result-grid { grid-template-columns: 1fr; }
             .header h1 { font-size: 1.5rem; }
         }
@@ -70,341 +78,371 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔧 Pascal Pressure Converter</h1>
-            <p>Convert Pascal to PSI, bar, atmosphere, and all pressure units</p>
+            <h1>📊 Universal Pressure Converter</h1>
+            <p>Convert between all major pressure units - pascal, bar, psi, atmosphere, torr, mmHg, and more</p>
         </div>
 
         <div class="converter-card">
-            <div class="input-section">
+            <div class="converter-row">
                 <div class="input-group">
-                    <label for="pascalInput">Pressure in Pascal (Pa)</label>
+                    <label for="inputValue">From</label>
                     <div class="input-wrapper">
-                        <input type="number" id="pascalInput" placeholder="Enter Pascal" step="0.01" min="0" value="100000">
-                        <span class="unit-label">Pa</span>
+                        <input type="number" id="inputValue" placeholder="Enter value" step="any" value="1">
+                    </div>
+                    <select id="fromUnit" class="unit-select">
+                        <option value="pa" selected>Pascal (Pa)</option>
+                        <option value="kpa">Kilopascal (kPa)</option>
+                        <option value="mpa">Megapascal (MPa)</option>
+                        <option value="bar">Bar (bar)</option>
+                        <option value="mbar">Millibar (mbar)</option>
+                        <option value="psi">Pound per Square Inch (psi)</option>
+                        <option value="atm">Atmosphere (atm)</option>
+                        <option value="torr">Torr (torr)</option>
+                        <option value="mmHg">Millimeter of Mercury (mmHg)</option>
+                        <option value="inhg">Inch of Mercury (inHg)</option>
+                    </select>
+                </div>
+
+                <button class="swap-btn" onclick="swapUnits()" title="Swap units">⇄</button>
+
+                <div class="input-group">
+                    <label for="toUnit">To</label>
+                    <select id="toUnit" class="unit-select">
+                        <option value="pa">Pascal (Pa)</option>
+                        <option value="kpa">Kilopascal (kPa)</option>
+                        <option value="mpa">Megapascal (MPa)</option>
+                        <option value="bar" selected>Bar (bar)</option>
+                        <option value="mbar">Millibar (mbar)</option>
+                        <option value="psi">Pound per Square Inch (psi)</option>
+                        <option value="atm">Atmosphere (atm)</option>
+                        <option value="torr">Torr (torr)</option>
+                        <option value="mmHg">Millimeter of Mercury (mmHg)</option>
+                        <option value="inhg">Inch of Mercury (inHg)</option>
+                    </select>
+                    <div class="input-wrapper" style="margin-top: 10px;">
+                        <input type="text" id="outputValue" placeholder="Result" readonly style="background: #f8f9fa; font-weight: 600; color: #2c3e50;">
                     </div>
                 </div>
             </div>
 
-            <div class="result-grid" id="resultGrid">
-                <div class="result-card">
-                    <div class="result-unit">Kilopascal (kPa)</div>
-                    <div class="result-value" id="kpaValue">100 kPa</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Bar</div>
-                    <div class="result-value" id="barValue">1.00 bar</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">PSI</div>
-                    <div class="result-value" id="psiValue">14.50 PSI</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Atmosphere (atm)</div>
-                    <div class="result-value" id="atmValue">0.987 atm</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Torr (mmHg)</div>
-                    <div class="result-value" id="torrValue">750.06 Torr</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Millibar (mbar)</div>
-                    <div class="result-value" id="mbarValue">1000 mbar</div>
-                </div>
-            </div>
+            <div class="result-grid" id="resultGrid"></div>
 
             <div class="quick-convert">
-                <h3>🔧 Common Pressures</h3>
+                <h3>⚡ Quick Conversions</h3>
                 <div class="quick-grid">
-                    <div class="quick-btn" onclick="setPascal(101325)">
-                        <div class="quick-value">101,325 Pa</div>
-                        <div class="quick-label">1 atm</div>
+                    <div class="quick-btn" onclick="setInput(1)">
+                        <div class="quick-value">1</div>
+                        <div class="quick-label">Unit</div>
                     </div>
-                    <div class="quick-btn" onclick="setPascal(100000)">
-                        <div class="quick-value">100,000 Pa</div>
-                        <div class="quick-label">1 bar</div>
+                    <div class="quick-btn" onclick="setInput(10)">
+                        <div class="quick-value">10</div>
+                        <div class="quick-label">Units</div>
                     </div>
-                    <div class="quick-btn" onclick="setPascal(6895)">
-                        <div class="quick-value">6,895 Pa</div>
-                        <div class="quick-label">1 PSI</div>
+                    <div class="quick-btn" onclick="setInput(100)">
+                        <div class="quick-value">100</div>
+                        <div class="quick-label">Units</div>
                     </div>
-                    <div class="quick-btn" onclick="setPascal(200000)">
-                        <div class="quick-value">200,000 Pa</div>
-                        <div class="quick-label">Tire Pressure</div>
-                    </div>
-                    <div class="quick-btn" onclick="setPascal(1000000)">
-                        <div class="quick-value">1,000,000 Pa</div>
-                        <div class="quick-label">High Pressure</div>
+                    <div class="quick-btn" onclick="setInput(1000)">
+                        <div class="quick-value">1000</div>
+                        <div class="quick-label">Units</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="info-section">
-            <h2>🔧 Pascal Pressure Unit</h2>
+            <h2>📊 Universal Pressure Conversion</h2>
             
-            <p>The <strong>Pascal (Pa)</strong> is the SI unit of pressure, named after Blaise Pascal. It's defined as one newton per square meter.</p>
+            <p>Convert between all major pressure units used in science, engineering, meteorology, and daily life applications.</p>
 
-            <div class="formula-box">
-                <strong>Conversion Formulas:</strong><br>
-                <strong>Pascal to Other Units:</strong><br>
-                • Kilopascal (kPa) = Pascal ÷ 1,000<br>
-                • Bar = Pascal ÷ 100,000<br>
-                • PSI = Pascal ÷ 6,894.76<br>
-                • Atmosphere (atm) = Pascal ÷ 101,325<br>
-                • Torr (mmHg) = Pascal ÷ 133.322<br>
-                • Millibar (mbar) = Pascal ÷ 100<br><br>
-                <strong>Base Definition:</strong><br>
-                • 1 Pascal = 1 Newton/meter² = 1 kg/(m·s²)
-            </div>
-
-            <h3>📊 Pressure Unit Comparison</h3>
+            <h3>📈 Conversion Factors to Pascals</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
                         <th>Unit</th>
-                        <th>Pascal (Pa)</th>
-                        <th>Common Use</th>
+                        <th>Symbol</th>
+                        <th>Pascals (Pa)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>1 Pascal</td><td>1 Pa</td><td>SI base unit</td></tr>
-                    <tr><td>1 Kilopascal</td><td>1,000 Pa</td><td>Engineering</td></tr>
-                    <tr><td>1 Bar</td><td>100,000 Pa</td><td>Meteorology</td></tr>
-                    <tr><td>1 PSI</td><td>6,894.76 Pa</td><td>US industry</td></tr>
-                    <tr><td>1 Atmosphere</td><td>101,325 Pa</td><td>Standard pressure</td></tr>
-                    <tr><td>1 Torr</td><td>133.322 Pa</td><td>Vacuum systems</td></tr>
-                    <tr><td>1 Millibar</td><td>100 Pa</td><td>Aviation</td></tr>
+                    <tr><td>Pascal</td><td>Pa</td><td>1</td></tr>
+                    <tr><td>Kilopascal</td><td>kPa</td><td>1,000</td></tr>
+                    <tr><td>Megapascal</td><td>MPa</td><td>1,000,000</td></tr>
+                    <tr><td>Bar</td><td>bar</td><td>100,000</td></tr>
+                    <tr><td>Millibar</td><td>mbar</td><td>100</td></tr>
+                    <tr><td>Pound per Square Inch</td><td>psi</td><td>6,894.76</td></tr>
+                    <tr><td>Atmosphere</td><td>atm</td><td>101,325</td></tr>
+                    <tr><td>Torr</td><td>torr</td><td>133.322</td></tr>
+                    <tr><td>Millimeter of Mercury</td><td>mmHg</td><td>133.322</td></tr>
+                    <tr><td>Inch of Mercury</td><td>inHg</td><td>3,386.39</td></tr>
                 </tbody>
             </table>
 
-            <h3>🚗 Tire Pressure</h3>
-            <ul>
-                <li><strong>Car tires:</strong> 200-250 kPa (29-36 PSI)</li>
-                <li><strong>Truck tires:</strong> 550-700 kPa (80-100 PSI)</li>
-                <li><strong>Bicycle tires:</strong> 400-900 kPa (60-130 PSI)</li>
-                <li><strong>Motorcycle tires:</strong> 200-300 kPa (29-43 PSI)</li>
-                <li><strong>Aircraft tires:</strong> 1,500-2,000 kPa (220-290 PSI)</li>
-            </ul>
-
-            <h3>🌍 Atmospheric Pressure</h3>
             <div class="formula-box">
-                <strong>Standard Atmosphere:</strong><br>
-                • Sea level: 101,325 Pa (1 atm)<br>
-                • 1,000 m altitude: ~90,000 Pa<br>
-                • 3,000 m altitude: ~70,000 Pa<br>
-                • 5,000 m altitude: ~54,000 Pa<br>
-                • Mt. Everest (8,848 m): ~33,000 Pa<br><br>
-                <strong>Weather Systems:</strong><br>
-                • High pressure: > 102,000 Pa (1020 mbar)<br>
-                • Low pressure: < 100,000 Pa (1000 mbar)<br>
-                • Hurricane center: ~88,000 Pa (880 mbar)
+                <strong>Common Conversions:</strong><br>
+                • 1 bar = 100,000 Pa = 14.5038 psi<br>
+                • 1 atm = 101,325 Pa = 14.6959 psi<br>
+                • 1 psi = 6,894.76 Pa = 0.0689476 bar<br>
+                • 1 torr = 1 mmHg = 133.322 Pa<br>
+                • 1 inHg = 3,386.39 Pa = 0.0334211 atm<br>
+                • 1 MPa = 1,000,000 Pa = 10 bar
             </div>
 
-            <h3>💨 Wind & Weather</h3>
+            <h3>🔬 SI Units</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
-                        <th>Condition</th>
-                        <th>Pressure (Pa)</th>
-                        <th>Pressure (mbar)</th>
+                        <th>Unit</th>
+                        <th>Abbreviation</th>
+                        <th>Relation to Pascal</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>High pressure system</td><td>102,000-103,500 Pa</td><td>1020-1035 mbar</td></tr>
-                    <tr><td>Normal pressure</td><td>101,325 Pa</td><td>1013.25 mbar</td></tr>
-                    <tr><td>Low pressure system</td><td>99,000-100,000 Pa</td><td>990-1000 mbar</td></tr>
-                    <tr><td>Tropical storm</td><td>~98,000 Pa</td><td>~980 mbar</td></tr>
-                    <tr><td>Hurricane Cat 1</td><td>~98,000 Pa</td><td>~980 mbar</td></tr>
-                    <tr><td>Hurricane Cat 5</td><td>< 92,000 Pa</td><td>< 920 mbar</td></tr>
+                    <tr><td>Megapascal</td><td>MPa</td><td>1,000,000 Pa</td></tr>
+                    <tr><td>Kilopascal</td><td>kPa</td><td>1,000 Pa</td></tr>
+                    <tr><td>Pascal</td><td>Pa</td><td>Base unit</td></tr>
+                    <tr><td>Hectopascal</td><td>hPa</td><td>100 Pa</td></tr>
+                    <tr><td>Millipascal</td><td>mPa</td><td>0.001 Pa</td></tr>
                 </tbody>
             </table>
+
+            <h3>⚖️ Imperial/US System</h3>
+            <ul>
+                <li><strong>Pound per Square Inch (psi):</strong> Most common US pressure unit</li>
+                <li><strong>Inch of Mercury (inHg):</strong> Used in aviation and meteorology</li>
+                <li><strong>Pound per Square Foot (psf):</strong> 1 psf = 47.8803 Pa</li>
+                <li><strong>Kip per Square Inch (ksi):</strong> 1 ksi = 1,000 psi</li>
+            </ul>
+
+            <h3>🌤️ Meteorology & Weather</h3>
+            <div class="formula-box">
+                <strong>Atmospheric Pressure:</strong><br>
+                • Standard sea level pressure: 1013.25 mbar<br>
+                • High pressure system: >1013 mbar<br>
+                • Low pressure system: <1013 mbar<br>
+                • Hurricane pressure: <980 mbar<br>
+                • Extreme low: ~870 mbar (Typhoon Tip, 1979)
+            </div>
+
+            <h3>🏠 Everyday Pressure Examples</h3>
+            <ul>
+                <li><strong>Tire pressure:</strong> 30-35 psi (car), 80-130 psi (bike)</li>
+                <li><strong>Water pressure:</strong> 40-80 psi (typical home)</li>
+                <li><strong>Scuba tank:</strong> 3,000 psi (full)</li>
+                <li><strong>Blood pressure:</strong> 120/80 mmHg (normal)</li>
+                <li><strong>Cooking pressure:</strong> 15 psi (pressure cooker)</li>
+            </ul>
 
             <h3>🏭 Industrial Applications</h3>
-            <ul>
-                <li><strong>HVAC systems:</strong> 100-500 Pa pressure difference</li>
-                <li><strong>Hydraulic systems:</strong> 10-35 MPa (10-35 million Pa)</li>
-                <li><strong>Pneumatic tools:</strong> 600-900 kPa (90-130 PSI)</li>
-                <li><strong>Compressed air:</strong> 700-1,000 kPa (100-145 PSI)</li>
-                <li><strong>Steam boilers:</strong> 1-20 MPa (10-200 bar)</li>
-            </ul>
-
-            <h3>🔬 Laboratory & Scientific</h3>
-            <div class="formula-box">
-                <strong>Vacuum Levels:</strong><br>
-                • Low vacuum: 10³-10⁵ Pa<br>
-                • Medium vacuum: 10⁻¹-10³ Pa<br>
-                • High vacuum: 10⁻⁷-10⁻¹ Pa<br>
-                • Ultra-high vacuum: < 10⁻⁷ Pa<br><br>
-                <strong>Gas Cylinders:</strong><br>
-                • CO₂ cylinder: ~5,700,000 Pa (57 bar)<br>
-                • Oxygen medical: ~13,800,000 Pa (138 bar)<br>
-                • Scuba tank: ~20,000,000 Pa (200 bar)
-            </div>
-
-            <h3>🏊 Water Pressure</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
-                        <th>Depth</th>
-                        <th>Pressure (Pa)</th>
-                        <th>Pressure (atm)</th>
+                        <th>Application</th>
+                        <th>Typical Pressure Range</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Surface</td><td>101,325 Pa</td><td>1 atm</td></tr>
-                    <tr><td>10 meters</td><td>~200,000 Pa</td><td>~2 atm</td></tr>
-                    <tr><td>50 meters</td><td>~600,000 Pa</td><td>~6 atm</td></tr>
-                    <tr><td>100 meters</td><td>~1,100,000 Pa</td><td>~11 atm</td></tr>
-                    <tr><td>1,000 meters</td><td>~10,100,000 Pa</td><td>~100 atm</td></tr>
-                    <tr><td>Mariana Trench</td><td>~110,000,000 Pa</td><td>~1,100 atm</td></tr>
+                    <tr><td>HVAC systems</td><td>0.5-2 bar</td></tr>
+                    <tr><td>Hydraulic systems</td><td>100-700 bar</td></tr>
+                    <tr><td>Natural gas pipelines</td><td>20-100 bar</td></tr>
+                    <tr><td>Water distribution</td><td>2-6 bar</td></tr>
+                    <tr><td>Steam systems</td><td>1-40 bar</td></tr>
                 </tbody>
             </table>
 
-            <h3>🏠 Household Pressures</h3>
+            <h3>🚗 Automotive</h3>
             <ul>
-                <li><strong>Water supply:</strong> 300-600 kPa (45-85 PSI)</li>
-                <li><strong>Garden hose:</strong> 200-400 kPa (30-60 PSI)</li>
-                <li><strong>Natural gas line:</strong> 2-7 kPa (0.3-1 PSI)</li>
-                <li><strong>Pressure washer:</strong> 7,000-20,000 kPa (1,000-3,000 PSI)</li>
-                <li><strong>Espresso machine:</strong> 900 kPa (9 bar, 130 PSI)</li>
+                <li><strong>Car tires:</strong> 30-35 psi (2.1-2.4 bar)</li>
+                <li><strong>Truck tires:</strong> 80-120 psi (5.5-8.3 bar)</li>
+                <li><strong>Fuel injection:</strong> 30-85 psi (2-6 bar)</li>
+                <li><strong>Brake systems:</td><td>1,000-2,000 psi (69-138 bar)</li>
             </ul>
 
-            <h3>✈️ Aviation Pressure</h3>
+            <h3>✈️ Aviation</h3>
             <div class="formula-box">
-                <strong>Cabin Pressure:</strong><br>
-                • Ground level: 101,325 Pa (1 atm)<br>
-                • Typical cruise cabin: 75,000-81,000 Pa (0.75-0.8 atm)<br>
-                • Equivalent altitude: 1,800-2,400 m (6,000-8,000 ft)<br><br>
-                <strong>Altitude Pressure:</strong><br>
-                • 10,000 ft: ~70,000 Pa<br>
-                • 35,000 ft (cruise): ~23,000 Pa<br>
-                • 60,000 ft: ~5,500 Pa
+                <strong>Aviation Pressure Standards:</strong><br>
+                • Standard atmosphere: 29.92 inHg or 1013.25 hPa<br>
+                • Cabin pressure: ~8,000 ft equivalent (10.9 psi)<br>
+                • Oxygen systems: 1,800-2,200 psi<br>
+                • Hydraulic systems: 3,000 psi
             </div>
 
-            <h3>🏥 Medical Applications</h3>
+            <h3>🏥 Medical & Healthcare</h3>
+            <ul>
+                <li><strong>Blood pressure:</strong> Measured in mmHg</li>
+                <li><strong>CPAP machines:</strong> 4-20 cmH₂O</li>
+                <li><strong>Oxygen tanks:</strong> 2,000-3,000 psi</li>
+                <li><strong>Anesthesia:</strong> 15-50 psi</li>
+                <li><strong>Intravenous:</strong> 1-5 psi</li>
+            </ul>
+
+            <h3>🔬 Scientific & Laboratory</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
-                        <th>Measurement</th>
-                        <th>Pressure</th>
+                        <th>Scale</th>
+                        <th>Unit</th>
+                        <th>Applications</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Blood pressure (120/80)</td><td>16,000/10,700 Pa (120/80 mmHg)</td></tr>
-                    <tr><td>Hyperbaric oxygen</td><td>~250,000 Pa (2.5 atm)</td></tr>
-                    <tr><td>CPAP therapy</td><td>400-2,000 Pa (4-20 mbar)</td></tr>
-                    <tr><td>Spinal fluid</td><td>700-1,800 Pa (7-18 cmH₂O)</td></tr>
+                    <tr><td>Ultra-high vacuum</td><td>nPa, μPa</td><td>Particle physics</td></tr>
+                    <tr><td>High vacuum</td><td>mPa, Pa</td><td>Electron microscopy</td></tr>
+                    <tr><td>Medium vacuum</td><td>Pa, hPa</td><td>Freeze drying</td></tr>
+                    <tr><td>Atmospheric</td><td>kPa, bar</td><td>Chemical reactions</td></tr>
+                    <tr><td>High pressure</td><td>MPa, GPa</td><td>Material science</td></tr>
                 </tbody>
             </table>
 
             <h3>💡 Quick Mental Conversions</h3>
             <div class="formula-box">
-                <strong>Pascal Approximations:</strong><br>
-                • 1 kPa ≈ 0.15 PSI<br>
-                • 100 kPa ≈ 1 bar ≈ 1 atm<br>
-                • 7 kPa ≈ 1 PSI<br>
-                • 100 Pa = 1 mbar<br>
-                • 1,000 Pa = 1 kPa<br>
-                • 101,325 Pa = 1 atmosphere (exact)
+                <strong>Bar ↔ PSI:</strong><br>
+                • Multiply bar by 14.5 for rough psi<br>
+                • Divide psi by 14.5 for rough bar<br><br>
+                <strong>Atm ↔ PSI:</strong><br>
+                • Multiply atm by 14.7 for rough psi<br>
+                • Divide psi by 14.7 for rough atm<br><br>
+                <strong>mmHg ↔ PSI:</strong><br>
+                • Divide mmHg by 50 for rough psi<br>
+                • Multiply psi by 50 for rough mmHg
             </div>
 
-            <h3>🌡️ Temperature & Pressure</h3>
-            <p>Pressure and temperature are related through gas laws:</p>
+            <h3>🌎 Country Standards</h3>
             <ul>
-                <li><strong>Gay-Lussac's Law:</strong> P/T = constant (at constant volume)</li>
-                <li><strong>Ideal Gas Law:</strong> PV = nRT</li>
-                <li><strong>Effect:</strong> Tire pressure increases ~7 kPa per 10°C rise</li>
-                <li><strong>Standard conditions:</strong> 101,325 Pa at 0°C (STP)</li>
+                <li><strong>SI countries:</strong> Use Pa, kPa, MPa, bar</li>
+                <li><strong>United States:</strong> Primarily uses psi, inHg</li>
+                <li><strong>United Kingdom:</strong> Mixed system (bar for cars, psi for bikes)</li>
+                <li><strong>Aviation worldwide:</strong> Uses hPa/mbar and inHg</li>
             </ul>
 
-            <h3>🔊 Sound Pressure</h3>
-            <div class="formula-box">
-                <strong>Sound Pressure Levels:</strong><br>
-                • Threshold of hearing: 20 μPa (0.00002 Pa)<br>
-                • Normal conversation: ~0.02 Pa<br>
-                • Busy street: ~0.2 Pa<br>
-                • Threshold of pain: ~20 Pa<br>
-                • Jet engine: ~200 Pa
-            </div>
-
-            <h3>⚙️ Engineering Standards</h3>
+            <h3>📏 Pressure Measurement Devices</h3>
             <ul>
-                <li><strong>Structural analysis:</strong> Uses Pa and MPa</li>
-                <li><strong>Fluid dynamics:</strong> Pascals for pressure drop</li>
-                <li><strong>Material testing:</strong> Stress in MPa or GPa</li>
-                <li><strong>Pipe flow:</strong> kPa per 100 meters</li>
+                <li><strong>Barometer:</strong> Measures atmospheric pressure</li>
+                <li><strong>Manometer:</strong> Measures gas/liquid pressure</li>
+                <li><strong>Bourdon gauge:</strong> Common mechanical pressure gauge</li>
+                <li><strong>Pressure transducer:</strong> Converts pressure to electrical signal</li>
+                <li><strong>Sphygmomanometer:</strong> Measures blood pressure</li>
             </ul>
-
-            <h3>🌊 Oceanography</h3>
-            <table class="conversion-table">
-                <thead>
-                    <tr>
-                        <th>Application</th>
-                        <th>Pressure Range</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Recreational diving</td><td>100,000-600,000 Pa (1-6 atm)</td></tr>
-                    <tr><td>Technical diving</td><td>600,000-1,500,000 Pa (6-15 atm)</td></tr>
-                    <tr><td>Submarine operations</td><td>Up to 5,000,000 Pa (50 atm)</td></tr>
-                    <tr><td>Deep-sea research</td><td>10,000,000-110,000,000 Pa</td></tr>
-                </tbody>
-            </table>
 
             <h3>🏛️ Historical Context</h3>
-            <p>The <strong>Pascal</strong> was named after Blaise Pascal (1623-1662), a French mathematician and physicist who made significant contributions to fluid mechanics and pressure studies. The unit was officially adopted in 1971 as part of the International System of Units (SI).</p>
+            <p>The <strong>pascal</strong> is named after Blaise Pascal, the French mathematician and physicist. The <strong>bar</strong> comes from the Greek word for weight. The <strong>torr</strong> is named after Evangelista Torricelli, inventor of the barometer. The <strong>atmosphere</strong> unit represents standard atmospheric pressure at sea level.</p>
 
-            <h3>🔑 Key Conversions</h3>
+            <h3>🎯 Key Conversions to Remember</h3>
             <ul>
-                <li><strong>1 Pascal = 1 N/m²</strong> (exact definition)</li>
-                <li><strong>1 kPa = 1,000 Pa</strong></li>
-                <li><strong>1 bar = 100,000 Pa = 100 kPa</strong></li>
-                <li><strong>1 PSI = 6,894.76 Pa ≈ 6.9 kPa</strong></li>
-                <li><strong>1 atm = 101,325 Pa ≈ 101.3 kPa</strong></li>
-                <li><strong>1 Torr = 133.322 Pa</strong></li>
+                <li><strong>1 bar = 14.5038 psi ≈ 100,000 Pa</strong></li>
+                <li><strong>1 atm = 14.6959 psi = 101,325 Pa</strong></li>
+                <li><strong>1 psi = 6,894.76 Pa = 0.0689476 bar</strong></li>
+                <li><strong>1 torr = 1 mmHg = 133.322 Pa</strong></li>
+                <li><strong>1 inHg = 3,386.39 Pa = 0.0334211 atm</strong></li>
+                <li><strong>1 MPa = 145.038 psi = 10 bar</strong></li>
             </ul>
         </div>
 
         <div class="footer">
-            <p>🔧 Accurate Pascal Pressure Conversion | All Pressure Units</p>
-            <p style="margin-top: 10px; font-size: 0.9rem;">Perfect for engineering, science, weather, and pressure measurements</p>
+            <p>📊 Universal Pressure Converter | All Major Units</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Convert pascal, bar, psi, atmosphere, torr, mmHg, and more</p>
         </div>
     </div>
 
     <script>
-        function convertPascal() {
-            const pascal = parseFloat(document.getElementById('pascalInput').value);
-            
-            if (isNaN(pascal) || pascal < 0) {
+        // Conversion factors to pascals
+        const toPascals = {
+            pa: 1,
+            kpa: 1000,
+            mpa: 1000000,
+            bar: 100000,
+            mbar: 100,
+            psi: 6894.76,
+            atm: 101325,
+            torr: 133.322,
+            mmHg: 133.322,
+            inhg: 3386.39
+        };
+
+        const unitNames = {
+            pa: 'Pascal (Pa)',
+            kpa: 'Kilopascal (kPa)',
+            mpa: 'Megapascal (MPa)',
+            bar: 'Bar (bar)',
+            mbar: 'Millibar (mbar)',
+            psi: 'Pound per Square Inch (psi)',
+            atm: 'Atmosphere (atm)',
+            torr: 'Torr (torr)',
+            mmHg: 'Millimeter of Mercury (mmHg)',
+            inhg: 'Inch of Mercury (inHg)'
+        };
+
+        function convert() {
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+
+            if (isNaN(inputValue)) {
+                document.getElementById('outputValue').value = '';
+                document.getElementById('resultGrid').innerHTML = '';
                 return;
             }
 
-            // Pascal to other units
-            const kpa = pascal / 1000;
-            const bar = pascal / 100000;
-            const psi = pascal / 6894.76;
-            const atm = pascal / 101325;
-            const torr = pascal / 133.322;
-            const mbar = pascal / 100;
+            // Convert to pascals first
+            const valueInPascals = inputValue * toPascals[fromUnit];
             
-            document.getElementById('kpaValue').textContent = kpa.toFixed(2) + ' kPa';
-            document.getElementById('barValue').textContent = bar.toFixed(5) + ' bar';
-            document.getElementById('psiValue').textContent = psi.toFixed(2) + ' PSI';
-            document.getElementById('atmValue').textContent = atm.toFixed(5) + ' atm';
-            document.getElementById('torrValue').textContent = torr.toFixed(2) + ' Torr';
-            document.getElementById('mbarValue').textContent = mbar.toFixed(2) + ' mbar';
+            // Convert to target unit
+            const result = valueInPascals / toPascals[toUnit];
+            
+            document.getElementById('outputValue').value = formatNumber(result);
+            
+            displayAllConversions(valueInPascals);
         }
 
-        function setPascal(value) {
-            document.getElementById('pascalInput').value = value;
-            convertPascal();
+        function displayAllConversions(valueInPascals) {
+            const resultGrid = document.getElementById('resultGrid');
+            resultGrid.innerHTML = '';
+
+            for (const [unit, name] of Object.entries(unitNames)) {
+                const converted = valueInPascals / toPascals[unit];
+                
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="result-unit">${name}</div>
+                    <div class="result-value">${formatNumber(converted)}</div>
+                `;
+                resultGrid.appendChild(card);
+            }
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) < 0.000001 || Math.abs(num) > 1e12) {
+                return num.toExponential(6);
+            }
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 6
+            });
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            document.getElementById('fromUnit').value = toUnit;
+            document.getElementById('toUnit').value = fromUnit;
+            
+            convert();
+        }
+
+        function setInput(value) {
+            document.getElementById('inputValue').value = value;
+            convert();
         }
 
         // Auto-convert on input
-        document.getElementById('pascalInput').addEventListener('input', convertPascal);
+        document.getElementById('inputValue').addEventListener('input', convert);
+        document.getElementById('fromUnit').addEventListener('change', convert);
+        document.getElementById('toUnit').addEventListener('change', convert);
 
         // Initial conversion
-        convertPascal();
+        convert();
     </script>
 </body>
 </html>
