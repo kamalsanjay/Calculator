@@ -2,7 +2,7 @@
 /**
  * Weight Converter
  * File: conversion/weight-converter.php
- * Description: Convert between pounds, kilograms, ounces, and other weight units
+ * Description: Convert between weight/mass units including kilograms, pounds, ounces, grams, and more
  */
 ?>
 <!DOCTYPE html>
@@ -10,13 +10,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weight Converter - Pounds, Kilograms, Ounces Calculator</title>
-    <meta name="description" content="Convert between pounds, kilograms, ounces, grams, and other weight units. Universal weight converter.">
+    <title>Weight Converter - Mass Unit Conversion Calculator</title>
+    <meta name="description" content="Convert between weight units: kilograms, pounds, ounces, grams, stones, and more. Essential for cooking, science, shipping, and health applications.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%); min-height: 100vh; padding: 20px; }
         
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
         .header { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); }
         .header h1 { color: #2c3e50; font-size: 2rem; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
@@ -24,25 +24,37 @@
         
         .converter-card { background: white; padding: 35px; box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
         
-        .input-section { margin-bottom: 25px; }
+        .converter-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: end; margin-bottom: 25px; }
+        
         .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; font-size: 0.95rem; }
-        .input-wrapper { position: relative; }
-        .input-wrapper input { width: 100%; padding: 14px 90px 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s; }
-        .input-wrapper input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .unit-label { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #667eea; font-weight: 600; font-size: 0.95rem; }
+        .input-wrapper input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s; }
+        .input-wrapper input:focus { outline: none; border-color: #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1); }
+        
+        .unit-select { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; cursor: pointer; transition: all 0.3s; background: white; margin-top: 10px; }
+        .unit-select:focus { outline: none; border-color: #ff6b6b; box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1); }
+        
+        .swap-btn { background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.3rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .swap-btn:hover { transform: rotate(180deg); }
         
         .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 25px; }
-        .result-card { background: linear-gradient(135deg, #e0e7ff 0%, #cfd9ff 100%); padding: 20px; border-radius: 12px; border-left: 5px solid #667eea; }
-        .result-unit { color: #4c51bf; font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
-        .result-value { font-size: 1.8rem; font-weight: bold; color: #5a67d8; word-wrap: break-word; }
+        .result-card { background: linear-gradient(135deg, #ffeb3b 0%, #ff9800 100%); padding: 18px; border-radius: 10px; border-left: 4px solid #ff6b6b; }
+        .result-unit { color: #d84315; font-size: 0.85rem; margin-bottom: 5px; font-weight: 600; }
+        .result-value { font-size: 1.15rem; font-weight: bold; color: #e65100; word-wrap: break-word; }
         
         .quick-convert { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 25px; }
         .quick-convert h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1rem; }
-        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
         .quick-btn { padding: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-align: center; }
-        .quick-btn:hover { border-color: #667eea; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15); }
-        .quick-value { font-weight: bold; color: #667eea; font-size: 1rem; }
+        .quick-btn:hover { border-color: #ff6b6b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15); }
+        .quick-value { font-weight: bold; color: #ff6b6b; font-size: 1rem; }
         .quick-label { font-size: 0.8rem; color: #7f8c8d; margin-top: 4px; }
+        
+        .common-weights { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-top: 25px; }
+        .common-weights h3 { color: #2c3e50; margin-bottom: 15px; font-size: 1.1rem; }
+        
+        .weight-scale { background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .weight-scale-bar { height: 30px; background: linear-gradient(90deg, #4caf50, #ffeb3b, #ff9800, #f44336); border-radius: 15px; margin: 10px 0; position: relative; }
+        .weight-scale-labels { display: flex; justify-content: space-between; font-size: 0.8rem; color: #555; }
         
         .info-section { background: white; padding: 30px; }
         .info-section h2 { color: #2c3e50; margin-bottom: 15px; font-size: 1.4rem; }
@@ -54,14 +66,24 @@
         .conversion-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.9rem; }
         .conversion-table th, .conversion-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
         .conversion-table th { background: #f8f9fa; color: #2c3e50; font-weight: 600; }
-        .conversion-table tr:hover { background: #e0e7ff; }
+        .conversion-table tr:hover { background: #ffeb3b; }
         
-        .formula-box { background: #e0e7ff; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea; }
-        .formula-box strong { color: #667eea; }
+        .formula-box { background: #ffeb3b; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ff6b6b; }
+        .formula-box strong { color: #ff6b6b; }
+        
+        .cooking-box { background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #ff9800; }
+        
+        .health-box { background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #4caf50; }
+        
+        .shipping-box { background: #f3e5f5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #9c27b0; }
         
         .footer { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 0 0 20px 20px; text-align: center; color: #7f8c8d; }
         
+        .weight-highlight { background: #fff3e0; padding: 3px 6px; border-radius: 4px; font-weight: bold; }
+        
         @media (max-width: 768px) {
+            .converter-row { grid-template-columns: 1fr; gap: 15px; }
+            .swap-btn { margin: 10px auto; }
             .result-grid { grid-template-columns: 1fr; }
             .header h1 { font-size: 1.5rem; }
         }
@@ -71,65 +93,102 @@
     <div class="container">
         <div class="header">
             <h1>⚖️ Weight Converter</h1>
-            <p>Convert between pounds, kilograms, ounces, and all weight units</p>
+            <p>Convert between weight units: kilograms, pounds, ounces, grams, stones, and more. Essential for cooking, science, shipping, and health applications.</p>
         </div>
 
         <div class="converter-card">
-            <div class="input-section">
+            <div class="converter-row">
                 <div class="input-group">
-                    <label for="kgInput">Weight in Kilograms (kg)</label>
+                    <label for="inputValue">From</label>
                     <div class="input-wrapper">
-                        <input type="number" id="kgInput" placeholder="Enter kilograms" step="0.01" min="0" value="70">
-                        <span class="unit-label">kg</span>
+                        <input type="number" id="inputValue" placeholder="Enter value" step="any" value="1">
+                    </div>
+                    <select id="fromUnit" class="unit-select">
+                        <option value="kg" selected>Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                        <option value="mg">Milligram (mg)</option>
+                        <option value="lb">Pound (lb)</option>
+                        <option value="oz">Ounce (oz)</option>
+                        <option value="stone">Stone (st)</option>
+                        <option value="ton_us">US Ton (ton)</option>
+                        <option value="ton_uk">UK Ton (ton UK)</option>
+                        <option value="tonne">Metric Tonne (t)</option>
+                        <option value="carat">Carat (ct)</option>
+                        <option value="grain">Grain (gr)</option>
+                        <option value="dram">Dram (dr)</option>
+                        <option value="newton">Newton (N)</option>
+                        <option value="slug">Slug</option>
+                    </select>
+                </div>
+
+                <button class="swap-btn" onclick="swapUnits()" title="Swap units">⇄</button>
+
+                <div class="input-group">
+                    <label for="toUnit">To</label>
+                    <select id="toUnit" class="unit-select">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="g">Gram (g)</option>
+                        <option value="mg">Milligram (mg)</option>
+                        <option value="lb" selected>Pound (lb)</option>
+                        <option value="oz">Ounce (oz)</option>
+                        <option value="stone">Stone (st)</option>
+                        <option value="ton_us">US Ton (ton)</option>
+                        <option value="ton_uk">UK Ton (ton UK)</option>
+                        <option value="tonne">Metric Tonne (t)</option>
+                        <option value="carat">Carat (ct)</option>
+                        <option value="grain">Grain (gr)</option>
+                        <option value="dram">Dram (dr)</option>
+                        <option value="newton">Newton (N)</option>
+                        <option value="slug">Slug</option>
+                    </select>
+                    <div class="input-wrapper" style="margin-top: 10px;">
+                        <input type="text" id="outputValue" placeholder="Result" readonly style="background: #f8f9fa; font-weight: 600; color: #2c3e50;">
                     </div>
                 </div>
             </div>
 
-            <div class="result-grid" id="resultGrid">
-                <div class="result-card">
-                    <div class="result-unit">Pounds (lb)</div>
-                    <div class="result-value" id="lbValue">154.32 lb</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Ounces (oz)</div>
-                    <div class="result-value" id="ozValue">2,469.17 oz</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Grams (g)</div>
-                    <div class="result-value" id="gValue">70,000 g</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Stone</div>
-                    <div class="result-value" id="stValue">11.02 st</div>
-                </div>
-                <div class="result-card">
-                    <div class="result-unit">Metric Ton</div>
-                    <div class="result-value" id="tValue">0.070 t</div>
-                </div>
-            </div>
+            <div class="result-grid" id="resultGrid"></div>
 
             <div class="quick-convert">
-                <h3>⚖️ Common Weights</h3>
+                <h3>⚡ Quick Conversions</h3>
                 <div class="quick-grid">
-                    <div class="quick-btn" onclick="setKg(1)">
-                        <div class="quick-value">1 kg</div>
-                        <div class="quick-label">2.2 lbs</div>
+                    <div class="quick-btn" onclick="setInput(1)">
+                        <div class="quick-value">1</div>
+                        <div class="quick-label">Kilogram</div>
                     </div>
-                    <div class="quick-btn" onclick="setKg(50)">
-                        <div class="quick-value">50 kg</div>
-                        <div class="quick-label">Medium Weight</div>
+                    <div class="quick-btn" onclick="setInput(2.20462)">
+                        <div class="quick-value">2.20462</div>
+                        <div class="quick-label">Pounds (1 kg)</div>
                     </div>
-                    <div class="quick-btn" onclick="setKg(70)">
-                        <div class="quick-value">70 kg</div>
+                    <div class="quick-btn" onclick="setInput(1000)">
+                        <div class="quick-value">1000</div>
+                        <div class="quick-label">Grams (1 kg)</div>
+                    </div>
+                    <div class="quick-btn" onclick="setInput(35.274)">
+                        <div class="quick-value">35.274</div>
+                        <div class="quick-label">Ounces (1 kg)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="common-weights">
+                <h3>🎯 Common Weight Values</h3>
+                <div class="quick-grid">
+                    <div class="quick-btn" onclick="setCommonWeight(0.028, 'Standard letter weight')">
+                        <div class="quick-value">28 g</div>
+                        <div class="quick-label">Letter</div>
+                    </div>
+                    <div class="quick-btn" onclick="setCommonWeight(0.454, 'One pound weight')">
+                        <div class="quick-value">454 g</div>
+                        <div class="quick-label">1 Pound</div>
+                    </div>
+                    <div class="quick-btn" onclick="setCommonWeight(68, 'Average human body weight')">
+                        <div class="quick-value">68 kg</div>
                         <div class="quick-label">Average Person</div>
                     </div>
-                    <div class="quick-btn" onclick="setKg(100)">
-                        <div class="quick-value">100 kg</div>
-                        <div class="quick-label">Heavy Weight</div>
-                    </div>
-                    <div class="quick-btn" onclick="setKg(1000)">
-                        <div class="quick-value">1,000 kg</div>
-                        <div class="quick-label">1 Metric Ton</div>
+                    <div class="quick-btn" onclick="setCommonWeight(907.185, 'One US ton')">
+                        <div class="quick-value">907 kg</div>
+                        <div class="quick-label">US Ton</div>
                     </div>
                 </div>
             </div>
@@ -138,271 +197,373 @@
         <div class="info-section">
             <h2>⚖️ Weight Unit Conversion</h2>
             
-            <p>Weight measures the force of gravity on an object. The <strong>kilogram (kg)</strong> is the SI unit, while <strong>pound (lb)</strong> is used primarily in the United States.</p>
+            <p>Convert between weight units used worldwide for science, commerce, health, cooking, and everyday applications.</p>
 
-            <div class="formula-box">
-                <strong>Conversion Formulas:</strong><br>
-                <strong>Kilograms to Other Units:</strong><br>
-                • Pounds (lb) = Kilograms × 2.20462<br>
-                • Ounces (oz) = Kilograms × 35.274<br>
-                • Grams (g) = Kilograms × 1,000<br>
-                • Stone = Kilograms × 0.157473<br>
-                • Metric Ton (t) = Kilograms ÷ 1,000<br><br>
-                <strong>Base Definitions:</strong><br>
-                • 1 kg = 1,000 grams<br>
-                • 1 lb = 16 ounces = 0.453592 kg<br>
-                • 1 stone = 14 pounds = 6.35029 kg
+            <div class="weight-scale">
+                <h3>📊 Weight Scale Spectrum</h3>
+                <div class="weight-scale-bar"></div>
+                <div class="weight-scale-labels">
+                    <span>Milligrams<br>(mg)</span>
+                    <span>Grams<br>(g)</span>
+                    <span>Kilograms<br>(kg)</span>
+                    <span>Pounds<br>(lb)</span>
+                    <span>Tons<br>(ton)</span>
+                </div>
             </div>
 
-            <h3>📊 Weight Unit Comparison</h3>
+            <h3>📊 Conversion Factors to Kilograms</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
                         <th>Unit</th>
+                        <th>Symbol</th>
                         <th>Kilograms</th>
-                        <th>Common Use</th>
+                        <th>Common Usage</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>1 Gram</td><td>0.001 kg</td><td>Small items</td></tr>
-                    <tr><td>1 Ounce</td><td>0.0283 kg</td><td>Food portions</td></tr>
-                    <tr><td>1 Pound</td><td>0.454 kg</td><td>US standard</td></tr>
-                    <tr><td>1 Kilogram</td><td>1 kg</td><td>SI unit</td></tr>
-                    <tr><td>1 Stone</td><td>6.35 kg</td><td>UK body weight</td></tr>
-                    <tr><td>1 Metric Ton</td><td>1,000 kg</td><td>Large weights</td></tr>
+                    <tr><td>Kilogram</td><td>kg</td><td>1</td><td>SI base unit</td></tr>
+                    <tr><td>Gram</td><td>g</td><td>0.001</td><td>Cooking, science</td></tr>
+                    <tr><td>Milligram</td><td>mg</td><td>0.000001</td><td>Medicine, supplements</td></tr>
+                    <tr><td>Pound</td><td>lb</td><td>0.453592</td><td>US/UK weight</td></tr>
+                    <tr><td>Ounce</td><td>oz</td><td>0.0283495</td><td>US/UK small weights</td></tr>
+                    <tr><td>Stone</td><td>st</td><td>6.35029</td><td>UK body weight</td></tr>
+                    <tr><td>US Ton</td><td>ton</td><td>907.185</td><td>US shipping, industry</td></tr>
+                    <tr><td>UK Ton</td><td>ton UK</td><td>1,016.05</td><td>UK shipping, industry</td></tr>
+                    <tr><td>Metric Tonne</td><td>t</td><td>1,000</td><td>International trade</td></tr>
+                    <tr><td>Carat</td><td>ct</td><td>0.0002</td><td>Gemstones, pearls</td></tr>
+                    <tr><td>Grain</td><td>gr</td><td>0.0000648</td><td>Ammunition, arrows</td></tr>
+                    <tr><td>Dram</td><td>dr</td><td>0.00177185</td><td>Apothecary, historical</td></tr>
+                    <tr><td>Newton</td><td>N</td><td>0.101972</td><td>Force measurement</td></tr>
+                    <tr><td>Slug</td><td>slug</td><td>14.5939</td><td>Imperial mass unit</td></tr>
                 </tbody>
             </table>
 
-            <h3>👤 Human Body Weight</h3>
+            <div class="formula-box">
+                <strong>Key Weight Conversion Formulas:</strong><br>
+                • <strong>1 Kilogram</strong> = 1,000 grams = 2.20462 pounds<br>
+                • <strong>1 Pound</strong> = 16 ounces = 0.453592 kilograms<br>
+                • <strong>1 Ounce</strong> = 28.3495 grams = 0.0625 pounds<br>
+                • <strong>1 Stone</strong> = 14 pounds = 6.35029 kilograms<br>
+                • <strong>1 US Ton</strong> = 2,000 pounds = 907.185 kilograms<br>
+                • <strong>1 UK Ton</strong> = 2,240 pounds = 1,016.05 kilograms<br>
+                • <strong>1 Metric Tonne</strong> = 1,000 kilograms = 2,204.62 pounds
+            </div>
+
+            <h3>🍳 Cooking & Food Measurements</h3>
+            <table class="conversion-table">
+                <thead>
+                    <tr>
+                        <th>Ingredient</th>
+                        <th>Volume to Weight</th>
+                        <th>Common Measurement</th>
+                        <th>Approximate Weight</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>All-purpose flour</td><td>1 cup</td><td>Spooned & leveled</td><td>120-125 grams</td></tr>
+                    <tr><td>Granulated sugar</td><td>1 cup</td><td>Standard packing</td><td>200 grams</td></tr>
+                    <tr><td>Brown sugar</td><td>1 cup</td><td>Firmly packed</td><td>220 grams</td></tr>
+                    <tr><td>Butter</td><td>1 cup</td><td>2 sticks</td><td>227 grams</td></tr>
+                    <tr><td>Milk</td><td>1 cup</td><td>Liquid measure</td><td>240 grams</td></tr>
+                    <tr><td>Water</td><td>1 cup</td><td>Liquid measure</td><td>236 grams</td></tr>
+                    <tr><td>Rice (uncooked)</td><td>1 cup</td><td>Standard measure</td><td>185 grams</td></tr>
+                    <tr><td>Oats (rolled)</td><td>1 cup</td><td>Standard measure</td><td>80 grams</td></tr>
+                    <tr><td>Honey</td><td>1 cup</td><td>Liquid measure</td><td>340 grams</td></tr>
+                    <tr><td>Salt</td><td>1 teaspoon</td><td>Fine grain</td><td>5.7 grams</td></tr>
+                </tbody>
+            </table>
+
+            <div class="cooking-box">
+                <strong>👨‍🍳 Cooking Weight Tips:</strong><br>
+                • <span class="weight-highlight">Baking precision:</span> Use weight measurements for consistent results<br>
+                • <span class="weight-highlight">Flour measurement:</span> Can vary by 30% between scooping and spooning<br>
+                • <span class="weight-highlight">Butter conversions:</span> 1 stick = ½ cup = 8 tbsp = 113.4 grams<br>
+                • <span class="weight-highlight">Liquid ingredients:</span> 1 mL ≈ 1 gram for water-based liquids<br>
+                • <span class="weight-highlight">Professional kitchens:</span> Almost exclusively use weight measurements
+            </div>
+
+            <h3>⚕️ Health & Body Weight</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
                         <th>Category</th>
                         <th>Kilograms</th>
                         <th>Pounds</th>
+                        <th>Stone (UK)</th>
+                        <th>Health Context</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Newborn baby</td><td>3-4 kg</td><td>6.6-8.8 lb</td></tr>
-                    <tr><td>Child (5 years)</td><td>18-20 kg</td><td>40-44 lb</td></tr>
-                    <tr><td>Child (10 years)</td><td>30-35 kg</td><td>66-77 lb</td></tr>
-                    <tr><td>Adult female (average)</td><td>60-70 kg</td><td>132-154 lb</td></tr>
-                    <tr><td>Adult male (average)</td><td>70-85 kg</td><td>154-187 lb</td></tr>
-                    <tr><td>Athlete (varies)</td><td>65-100+ kg</td><td>143-220+ lb</td></tr>
+                    <tr><td>Newborn baby</td><td>2.5-4.5</td><td>5.5-10</td><td>0.4-0.7</td><td>Healthy birth weight</td></tr>
+                    <tr><td>1-year-old</td><td>8-12</td><td>18-26</td><td>1.3-1.9</td><td>Typical development</td></tr>
+                    <tr><td>Average adult female</td><td>54-64</td><td>119-141</td><td>8.5-10.1</td><td>Global average</td></tr>
+                    <tr><td>Average adult male</td><td>69-83</td><td>152-183</td><td>10.9-13.1</td><td>Global average</td></tr>
+                    <tr><td>Underweight (adult)</td><td>&lt;18.5 BMI</td><td>&lt;18.5 BMI</td><td>&lt;18.5 BMI</td><td>Health risk</td></tr>
+                    <tr><td>Normal weight</td><td>18.5-24.9 BMI</td><td>18.5-24.9 BMI</td><td>18.5-24.9 BMI</td><td>Healthy range</td></tr>
+                    <tr><td>Overweight</td><td>25-29.9 BMI</td><td>25-29.9 BMI</td><td>25-29.9 BMI</td><td>Increased risk</td></tr>
+                    <tr><td>Obese</td><td>≥30 BMI</td><td>≥30 BMI</td><td>≥30 BMI</td><td>High health risk</td></tr>
                 </tbody>
             </table>
 
-            <h3>🍎 Food & Cooking</h3>
-            <ul>
-                <li><strong>1 cup flour:</strong> ~120 g (4.2 oz)</li>
-                <li><strong>1 cup sugar:</strong> ~200 g (7 oz)</li>
-                <li><strong>1 stick butter:</strong> 113 g (4 oz)</li>
-                <li><strong>1 cup rice:</strong> ~185 g (6.5 oz)</li>
-                <li><strong>Medium apple:</strong> 182 g (6.4 oz)</li>
-                <li><strong>Large egg:</strong> 50 g (1.76 oz)</li>
-                <li><strong>Chicken breast:</strong> 170-230 g (6-8 oz)</li>
-            </ul>
-
-            <h3>📦 Package Weights</h3>
-            <div class="formula-box">
-                <strong>Shipping Standards:</strong><br>
-                • Letter: Up to 50 g (1.76 oz)<br>
-                • Small package: 1-5 kg (2.2-11 lb)<br>
-                • Medium package: 5-15 kg (11-33 lb)<br>
-                • Large package: 15-30 kg (33-66 lb)<br>
-                • Freight: 30+ kg (66+ lb)<br>
-                • Max UPS/FedEx: 70 kg (150 lb)
+            <div class="health-box">
+                <strong>💪 Health & Fitness:</strong><br>
+                • <span class="weight-highlight">BMI Formula:</span> Weight (kg) ÷ [Height (m)]²<br>
+                • <span class="weight-highlight">Weight loss:</span> 0.5-1 kg (1-2 lb) per week is considered healthy<br>
+                • <span class="weight-highlight">Muscle vs Fat:</span> Muscle is denser - 1 liter muscle ≈ 1.06 kg, fat ≈ 0.9 kg<br>
+                • <span class="weight-highlight">Water weight:</span> Can fluctuate 1-2 kg daily due to hydration<br>
+                • <span class="weight-highlight">Weight training:</span> Typical dumbbells: 2.5-25 kg (5-55 lb)
             </div>
 
-            <h3>🏋️ Gym Weights</h3>
+            <h3>📦 Shipping & Postal Weights</h3>
+            <ul>
+                <li><strong>Standard letter:</strong> Up to 28 grams (1 ounce) for basic postage</li>
+                <li><strong>Large envelope:</strong> 28-227 grams (1-8 ounces)</li>
+                <li><strong>Small package:</strong> 227 grams - 2.3 kg (8 ounces - 5 pounds)</li>
+                <li><strong>Medium package:</strong> 2.3-9 kg (5-20 pounds)</li>
+                <li><strong>Heavy package:</strong> 9-23 kg (20-50 pounds) - typical shipping limit</li>
+                <li><strong>Freight shipments:</strong> 23+ kg (50+ pounds) - palletized goods</li>
+                <li><strong>Airline baggage:</strong> Typically 23 kg (50 lb) checked, 7-10 kg (15-22 lb) carry-on</li>
+            </ul>
+
+            <h3>🏭 Industrial & Commercial Weights</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
-                        <th>Equipment</th>
-                        <th>Kilograms</th>
-                        <th>Pounds</th>
+                        <th>Item/Context</th>
+                        <th>Typical Weight</th>
+                        <th>Equivalent</th>
+                        <th>Industry</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>Light dumbbell</td><td>2-5 kg</td><td>4.4-11 lb</td></tr>
-                    <tr><td>Medium dumbbell</td><td>10-20 kg</td><td>22-44 lb</td></tr>
-                    <tr><td>Heavy dumbbell</td><td>25-50 kg</td><td>55-110 lb</td></tr>
-                    <tr><td>Olympic barbell</td><td>20 kg</td><td>45 lb</td></tr>
-                    <tr><td>Weight plate (standard)</td><td>1.25-25 kg</td><td>2.5-55 lb</td></tr>
-                    <tr><td>Kettlebell</td><td>4-32 kg</td><td>9-70 lb</td></tr>
+                    <tr><td>Brick (standard)</td><td>2.0-2.5 kg</td><td>4.4-5.5 lb</td><td>Construction</td></tr>
+                    <tr><td>Concrete block</td><td>11-16 kg</td><td>24-35 lb</td><td>Construction</td></tr>
+                    <tr><td>Car (compact)</td><td>1,100-1,300 kg</td><td>2,400-2,900 lb</td><td>Automotive</td></tr>
+                    <tr><td>Car (SUV)</td><td>1,800-2,400 kg</td><td>4,000-5,300 lb</td><td>Automotive</td></tr>
+                    <tr><td>Shipping container (empty)</td><td>2,200-3,800 kg</td><td>4,800-8,400 lb</td><td>Logistics</td></tr>
+                    <tr><td>Elephant (African)</td><td>3,000-6,000 kg</td><td>6,600-13,200 lb</td><td>Zoology</td></tr>
+                    <tr><td>Blue whale</td><td>100,000-150,000 kg</td><td>220,000-330,000 lb</td><td>Marine biology</td></tr>
+                    <tr><td>Commercial aircraft (empty)</td><td>40,000-180,000 kg</td><td>88,000-400,000 lb</td><td>Aviation</td></tr>
                 </tbody>
             </table>
 
-            <h3>🐾 Animal Weights</h3>
-            <ul>
-                <li><strong>Cat:</strong> 3-5 kg (6.6-11 lb)</li>
-                <li><strong>Small dog:</strong> 5-10 kg (11-22 lb)</li>
-                <li><strong>Medium dog:</strong> 10-25 kg (22-55 lb)</li>
-                <li><strong>Large dog:</strong> 25-50 kg (55-110 lb)</li>
-                <li><strong>Giant dog:</strong> 50-90 kg (110-200 lb)</li>
-                <li><strong>Horse:</strong> 380-550 kg (840-1,210 lb)</li>
-                <li><strong>Cow:</strong> 600-800 kg (1,320-1,760 lb)</li>
-            </ul>
-
-            <h3>🚗 Vehicle Weights</h3>
-            <div class="formula-box">
-                <strong>Typical Curb Weights:</strong><br>
-                • Motorcycle: 150-300 kg (330-660 lb)<br>
-                • Smart car: 750 kg (1,650 lb)<br>
-                • Compact car: 1,200-1,400 kg (2,650-3,090 lb)<br>
-                • Sedan: 1,400-1,700 kg (3,090-3,750 lb)<br>
-                • SUV: 1,800-2,500 kg (3,970-5,510 lb)<br>
-                • Pickup truck: 2,000-3,000 kg (4,410-6,610 lb)<br>
-                • Semi-truck: 15,000-36,000 kg (33,070-79,370 lb)
+            <div class="shipping-box">
+                <strong>🚚 Shipping & Logistics:</strong><br>
+                • <span class="weight-highlight">Freight class:</span> Based on weight and density for pricing<br>
+                • <span class="weight-highlight">Pallet weight:</span> Standard pallet ≈ 25 kg (55 lb) empty<br>
+                • <span class="weight-highlight">Container ship:</span> Can carry 200,000+ metric tonnes<br>
+                • <span class="weight-highlight">Weight limits:</span> Trucks: 36,000 kg (80,000 lb) in US<br>
+                • <span class="weight-highlight">Air freight:</span> Chargeable weight considers both actual and volumetric weight
             </div>
 
-            <h3>✈️ Luggage Limits</h3>
-            <table class="conversion-table">
-                <thead>
-                    <tr>
-                        <th>Airline Type</th>
-                        <th>Kilograms</th>
-                        <th>Pounds</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Carry-on</td><td>7-10 kg</td><td>15-22 lb</td></tr>
-                    <tr><td>Checked (economy)</td><td>23 kg</td><td>50 lb</td></tr>
-                    <tr><td>Checked (business)</td><td>32 kg</td><td>70 lb</td></tr>
-                    <tr><td>Overweight fee threshold</td><td>23-32 kg</td><td>50-70 lb</td></tr>
-                </tbody>
-            </table>
-
-            <h3>🏗️ Construction Materials</h3>
-            <ul>
-                <li><strong>Concrete (per m³):</strong> 2,400 kg (5,290 lb)</li>
-                <li><strong>Steel (per m³):</strong> 7,850 kg (17,300 lb)</li>
-                <li><strong>Wood (per m³):</strong> 500-700 kg (1,100-1,540 lb)</li>
-                <li><strong>Brick:</strong> 2-3 kg each (4.4-6.6 lb)</li>
-                <li><strong>Concrete block:</strong> 14-18 kg (31-40 lb)</li>
-                <li><strong>Bag of cement:</strong> 25-50 kg (55-110 lb)</li>
-            </ul>
-
-            <h3>📱 Electronics Weight</h3>
-            <div class="formula-box">
-                <strong>Common Devices:</strong><br>
-                • Smartphone: 150-250 g (5.3-8.8 oz)<br>
-                • Tablet: 300-700 g (10.6-24.7 oz)<br>
-                • Laptop (13"): 1-1.5 kg (2.2-3.3 lb)<br>
-                • Laptop (15"): 1.8-2.5 kg (4-5.5 lb)<br>
-                • Desktop PC: 5-15 kg (11-33 lb)<br>
-                • Monitor (24"): 4-7 kg (8.8-15.4 lb)
-            </div>
-
-            <h3>💎 Precious Metals</h3>
+            <h3>💎 Precious Metals & Gemstones</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
                         <th>Unit</th>
                         <th>Grams</th>
-                        <th>Troy Ounces</th>
+                        <th>Ounces</th>
+                        <th>Grains</th>
+                        <th>Usage</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>1 Troy ounce</td><td>31.1035 g</td><td>1 oz t</td></tr>
-                    <tr><td>Gold bar (standard)</td><td>400 troy oz</td><td>12.44 kg</td></tr>
-                    <tr><td>Gold coin (1 oz)</td><td>31.1 g</td><td>1.09 regular oz</td></tr>
+                    <tr><td>Carat (metric)</td><td>0.2</td><td>0.007055</td><td>3.08647</td><td>Gemstones worldwide</td></tr>
+                    <tr><td>Troy Ounce</td><td>31.1035</td><td>1</td><td>480</td><td>Precious metals</td></tr>
+                    <tr><td>Pennyweight</td><td>1.55517</td><td>0.05</td><td>24</td><td>Jewelry (historical)</td></tr>
+                    <tr><td>Tola (India)</td><td>11.6638</td><td>0.375</td><td>180</td><td>Gold in South Asia</td></tr>
+                    <tr><td>Tael (Chinese)</td><td>37.5</td><td>1.20565</td><td>578.713</td><td>Gold in East Asia</td></tr>
+                    <tr><td>Baht (Thai)</td><td>15.244</td><td>0.49025</td><td>235.301</td><td>Gold in Thailand</td></tr>
                 </tbody>
             </table>
 
             <h3>💡 Quick Mental Conversions</h3>
             <div class="formula-box">
-                <strong>Kilograms to Pounds:</strong><br>
-                • Multiply kg by 2 for rough lbs (slightly low)<br>
-                • Example: 70 kg × 2 = 140 lb<br>
-                • Actual: 70 kg = 154.3 lb<br>
-                • For accuracy: multiply by 2.2<br><br>
-                <strong>Pounds to Kilograms:</strong><br>
-                • Divide lbs by 2 for rough kg (slightly high)<br>
-                • Example: 150 lb ÷ 2 = 75 kg<br>
-                • Actual: 150 lb = 68 kg<br>
-                • For accuracy: divide by 2.2
+                <strong>Easy-to-Remember Approximations:</strong><br>
+                • <strong>Kilograms to Pounds:</strong> Multiply by 2.2 (kg × 2.2 ≈ lb)<br>
+                • <strong>Pounds to Kilograms:</strong> Divide by 2.2 (lb ÷ 2.2 ≈ kg)<br>
+                • <strong>Grams to Ounces:</strong> Divide by 28 (g ÷ 28 ≈ oz)<br>
+                • <strong>Ounces to Grams:</strong> Multiply by 28 (oz × 28 ≈ g)<br>
+                • <strong>Stones to Pounds:</strong> Multiply by 14 (st × 14 = lb)<br>
+                • <strong>Pounds to Stones:</strong> Divide by 14 (lb ÷ 14 = st)<br>
+                • <strong>Quick reference:</strong> 1 kg ≈ 2.2 lb, 1 lb ≈ 0.45 kg
             </div>
 
-            <h3>🌍 Regional Usage</h3>
+            <h3>🌎 Regional Weight Standards</h3>
+            <ul>
+                <li><strong>United States:</strong> Pounds and ounces for most applications</li>
+                <li><strong>United Kingdom:</strong> Stones and pounds for body weight, metric for other uses</li>
+                <li><strong>Canada:</strong> Officially metric, but some imperial use persists</li>
+                <li><strong>Australia/New Zealand:</strong> Fully metric (kilograms)</li>
+                <li><strong>European Union:</strong> Exclusively metric (kilograms and grams)</li>
+                <li><strong>Japan:</strong> Metric system with traditional units (monme, kan)</li>
+                <li><strong>China:</strong> Metric system with traditional units (jin, liang)</li>
+                <li><strong>India:</strong> Metric system with traditional units (tola, ser)</li>
+            </ul>
+
+            <h3>⚖️ Historical Context</h3>
+            <p>The <strong>kilogram</strong> was defined in 1795 as the mass of one liter of water. Today it's defined by the Planck constant. The <strong>pound</strong> has origins in Roman libra, while the <strong>ounce</strong> comes from Roman uncia. The <strong>stone</strong> was historically used for weighing commodities and varied by location until standardized in the 19th century. The international avoirdupois pound was defined in 1959 as exactly 0.45359237 kilograms.</p>
+
+            <h3>📏 Weight Measurement Tools</h3>
             <table class="conversion-table">
                 <thead>
                     <tr>
-                        <th>Region</th>
-                        <th>Body Weight</th>
-                        <th>Other Uses</th>
+                        <th>Measurement Tool</th>
+                        <th>Typical Range</th>
+                        <th>Accuracy</th>
+                        <th>Applications</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>United States</td><td>Pounds</td><td>Pounds/ounces</td></tr>
-                    <tr><td>United Kingdom</td><td>Stone/pounds</td><td>Kilograms</td></tr>
-                    <tr><td>Canada</td><td>Kilograms</td><td>Metric system</td></tr>
-                    <tr><td>Europe</td><td>Kilograms</td><td>Metric standard</td></tr>
-                    <tr><td>Asia</td><td>Kilograms</td><td>Metric system</td></tr>
+                    <tr><td>Laboratory balance</td><td>0.1 mg - 30 kg</td><td>0.001%</td><td>Scientific research</td></tr>
+                    <tr><td>Kitchen scale</td><td>1 g - 10 kg</td><td>0.1-1%</td><td>Cooking, baking</td></tr>
+                    <tr><td>Bathroom scale</td><td>0.1 kg - 180 kg</td><td>0.1-0.5%</td><td>Personal health</td></tr>
+                    <tr><td>Postal scale</td><td>1 g - 50 kg</td><td>0.5-1%</td><td>Shipping, mailing</td></tr>
+                    <tr><td>Industrial scale</td><td>1 kg - 100 tons</td><td>0.01-0.5%</td><td>Manufacturing, shipping</td></tr>
+                    <tr><td>Medical scale</td><td>0.1 kg - 250 kg</td><td>0.05%</td><td>Healthcare</td></tr>
+                    <tr><td>Jewelry scale</td><td>0.001 g - 500 g</td><td>0.001%</td><td>Gemstones, precious metals</td></tr>
                 </tbody>
             </table>
 
-            <h3>🎯 Practical Examples</h3>
+            <h3>🎯 Key Conversions to Remember</h3>
             <ul>
-                <li><strong>Bag of potatoes:</strong> 5 kg = 11 lb</li>
-                <li><strong>Gallon of milk:</strong> 3.78 kg = 8.34 lb</li>
-                <li><strong>Bowling ball:</strong> 6-7 kg = 13-16 lb</li>
-                <li><strong>Newborn baby:</strong> 3.5 kg = 7.7 lb</li>
-                <li><strong>Small dog:</strong> 7 kg = 15.4 lb</li>
-                <li><strong>Suitcase (empty):</strong> 3-5 kg = 6.6-11 lb</li>
-            </ul>
-
-            <h3>🏛️ Historical Context</h3>
-            <p>The <strong>kilogram</strong> was originally defined as the mass of one liter of water. The <strong>pound</strong> comes from the Roman "libra" (hence the abbreviation "lb"). The <strong>stone</strong> is a uniquely British unit still used for body weight in the UK. In 2019, the kilogram was redefined based on fundamental constants of nature rather than a physical prototype.</p>
-
-            <h3>🔑 Key Conversions</h3>
-            <ul>
-                <li><strong>1 kg = 2.20462 pounds = 1,000 grams</strong></li>
-                <li><strong>1 lb = 0.453592 kg = 16 ounces</strong></li>
-                <li><strong>1 oz = 28.3495 grams</strong></li>
-                <li><strong>1 stone = 14 pounds = 6.35 kg</strong></li>
-                <li><strong>1 metric ton = 1,000 kg = 2,204.6 lb</strong></li>
+                <li><strong>1 Kilogram = 2.20462 Pounds = 35.274 Ounces</strong></li>
+                <li><strong>1 Pound = 0.453592 Kilograms = 16 Ounces</strong></li>
+                <li><strong>1 Ounce = 28.3495 Grams = 0.0625 Pounds</strong></li>
+                <li><strong>1 Stone = 14 Pounds = 6.35029 Kilograms</strong></li>
+                <li><strong>1 US Ton = 2,000 Pounds = 907.185 Kilograms</strong></li>
+                <li><strong>1 Metric Tonne = 1,000 Kilograms = 2,204.62 Pounds</strong></li>
             </ul>
         </div>
 
         <div class="footer">
-            <p>⚖️ Accurate Weight Conversion | All Weight Units</p>
-            <p style="margin-top: 10px; font-size: 0.9rem;">Perfect for body weight, cooking, shipping, and weight measurements</p>
+            <p>⚖️ Weight Converter | Complete Weight Unit Conversion</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Convert kilograms, pounds, ounces, grams, stones, and other weight units with precision</p>
         </div>
     </div>
 
     <script>
-        function convertKg() {
-            const kg = parseFloat(document.getElementById('kgInput').value);
-            
-            if (isNaN(kg) || kg < 0) {
+        // Conversion factors to kilograms
+        const toKilograms = {
+            kg: 1,
+            g: 0.001,
+            mg: 0.000001,
+            lb: 0.45359237,
+            oz: 0.028349523125,
+            stone: 6.35029318,
+            ton_us: 907.18474,
+            ton_uk: 1016.0469088,
+            tonne: 1000,
+            carat: 0.0002,
+            grain: 0.00006479891,
+            dram: 0.0017718451953125,
+            newton: 0.10197162129779,
+            slug: 14.593902937206
+        };
+
+        const unitNames = {
+            kg: 'Kilogram (kg)',
+            g: 'Gram (g)',
+            mg: 'Milligram (mg)',
+            lb: 'Pound (lb)',
+            oz: 'Ounce (oz)',
+            stone: 'Stone (st)',
+            ton_us: 'US Ton (ton)',
+            ton_uk: 'UK Ton (ton UK)',
+            tonne: 'Metric Tonne (t)',
+            carat: 'Carat (ct)',
+            grain: 'Grain (gr)',
+            dram: 'Dram (dr)',
+            newton: 'Newton (N)',
+            slug: 'Slug'
+        };
+
+        function convert() {
+            const inputValue = parseFloat(document.getElementById('inputValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+
+            if (isNaN(inputValue)) {
+                document.getElementById('outputValue').value = '';
+                document.getElementById('resultGrid').innerHTML = '';
                 return;
             }
 
-            // Convert kg to other units
-            const lb = kg * 2.20462;
-            const oz = kg * 35.274;
-            const g = kg * 1000;
-            const stone = kg * 0.157473;
-            const ton = kg / 1000;
+            // Convert to kilograms first
+            const valueInKilograms = inputValue * toKilograms[fromUnit];
             
-            document.getElementById('lbValue').textContent = lb.toFixed(2) + ' lb';
-            document.getElementById('ozValue').textContent = oz.toLocaleString('en-US', {maximumFractionDigits: 2}) + ' oz';
-            document.getElementById('gValue').textContent = g.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' g';
-            document.getElementById('stValue').textContent = stone.toFixed(2) + ' st';
-            document.getElementById('tValue').textContent = ton.toFixed(3) + ' t';
+            // Convert to target unit
+            const result = valueInKilograms / toKilograms[toUnit];
+            
+            document.getElementById('outputValue').value = formatNumber(result);
+            
+            displayAllConversions(valueInKilograms);
         }
 
-        function setKg(value) {
-            document.getElementById('kgInput').value = value;
-            convertKg();
+        function displayAllConversions(valueInKilograms) {
+            const resultGrid = document.getElementById('resultGrid');
+            resultGrid.innerHTML = '';
+
+            for (const [unit, name] of Object.entries(unitNames)) {
+                const converted = valueInKilograms / toKilograms[unit];
+                
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="result-unit">${name}</div>
+                    <div class="result-value">${formatNumber(converted)}</div>
+                `;
+                resultGrid.appendChild(card);
+            }
+        }
+
+        function formatNumber(num) {
+            if (Math.abs(num) < 0.000001 || Math.abs(num) > 1e12) {
+                return num.toExponential(6);
+            }
+            if (Math.abs(num) < 0.01) {
+                return num.toFixed(8);
+            }
+            if (Math.abs(num) < 1) {
+                return num.toFixed(6);
+            }
+            return num.toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 4
+            });
+        }
+
+        function swapUnits() {
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            
+            document.getElementById('fromUnit').value = toUnit;
+            document.getElementById('toUnit').value = fromUnit;
+            
+            convert();
+        }
+
+        function setInput(value) {
+            document.getElementById('inputValue').value = value;
+            convert();
+        }
+
+        function setCommonWeight(value, description) {
+            document.getElementById('inputValue').value = value;
+            document.getElementById('fromUnit').value = 'kg';
+            document.getElementById('toUnit').value = 'lb';
+            convert();
+            console.log(description);
         }
 
         // Auto-convert on input
-        document.getElementById('kgInput').addEventListener('input', convertKg);
+        document.getElementById('inputValue').addEventListener('input', convert);
+        document.getElementById('fromUnit').addEventListener('change', convert);
+        document.getElementById('toUnit').addEventListener('change', convert);
 
         // Initial conversion
-        convertKg();
+        convert();
     </script>
 </body>
 </html>
