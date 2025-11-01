@@ -1,8 +1,8 @@
 <?php
 /**
- * WiFi Speed Calculator
+ * WiFi Speed Calculator with Live Speed Test
  * File: electronics/wifi-speed-calculator.php
- * Description: Advanced calculator for WiFi speed estimation, network performance, and signal analysis
+ * Description: Advanced calculator for WiFi speed estimation with live internet speed testing
  */
 ?>
 <!DOCTYPE html>
@@ -10,8 +10,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WiFi Speed Calculator - Network Performance & Signal Analysis</title>
-    <meta name="description" content="Advanced WiFi speed calculator with live animations. Calculate network performance, signal strength, and throughput metrics.">
+    <title>WiFi Speed Calculator - Live Internet Speed Test</title>
+    <meta name="description" content="Advanced WiFi speed calculator with live internet speed testing. Real-time network performance analysis.">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -37,6 +37,7 @@
         
         .btn { background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s; }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3); }
+        .btn:disabled { background: #cccccc; cursor: not-allowed; transform: none; box-shadow: none; }
         
         .result-card { background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%); color: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 15px rgba(156, 39, 176, 0.3); position: relative; overflow: hidden; }
         .result-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: pulse 3s ease-in-out infinite; }
@@ -82,17 +83,29 @@
         @keyframes wifiPulse { 0% { transform: scale(0.8); opacity: 0.8; } 50% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(0.8); opacity: 0.8; } }
         .signal-level { font-size: 1.2rem; font-weight: bold; color: #9c27b0; }
         
-        .speed-test { background: #f8f9fa; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
-        .speed-test h3 { color: #9c27b0; margin-bottom: 15px; }
-        .speed-gauge { width: 200px; height: 100px; position: relative; margin: 0 auto 20px; }
+        .speed-test-container { background: #f8f9fa; padding: 25px; border-radius: 12px; margin-bottom: 20px; text-align: center; }
+        .speed-test-container h3 { color: #9c27b0; margin-bottom: 20px; font-size: 1.5rem; }
+        
+        .speed-test { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .speed-test-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .speed-test-card h4 { color: #666; margin-bottom: 15px; font-size: 1.1rem; }
+        .speed-value { font-size: 2.5rem; font-weight: bold; color: #9c27b0; margin: 10px 0; }
+        .speed-unit { color: #666; font-size: 1rem; }
+        
+        .test-progress { margin: 20px 0; }
+        .test-status { font-size: 1.1rem; color: #666; margin-bottom: 10px; }
+        
+        .test-gauge { width: 200px; height: 100px; position: relative; margin: 0 auto 20px; }
         .gauge-background { width: 200px; height: 100px; border: 10px solid #e0e0e0; border-top: none; border-radius: 0 0 100px 100px; position: absolute; overflow: hidden; }
-        .gauge-fill { width: 200px; height: 100px; background: linear-gradient(90deg, #9c27b0 0%, #673ab7 100%); border-radius: 0 0 100px 100px; position: absolute; top: 100%; transition: transform 2s ease-out; transform-origin: top center; }
-        .gauge-needle { width: 2px; height: 90px; background: #333; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; transition: transform 2s ease-out; }
+        .gauge-fill { width: 200px; height: 100px; background: linear-gradient(90deg, #9c27b0 0%, #673ab7 100%); border-radius: 0 0 100px 100px; position: absolute; top: 100%; transition: transform 0.5s ease-out; transform-origin: top center; }
+        .gauge-needle { width: 2px; height: 90px; background: #333; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; transition: transform 0.5s ease-out; }
         .gauge-labels { display: flex; justify-content: space-between; width: 200px; margin: 0 auto; }
         .gauge-label { font-size: 0.8rem; color: #666; }
         
-        .live-speed { font-size: 2rem; font-weight: bold; color: #9c27b0; margin: 10px 0; }
-        .speed-unit { font-size: 1rem; color: #666; }
+        .ping-display { font-size: 1.5rem; font-weight: bold; color: #9c27b0; margin: 10px 0; }
+        
+        .test-history { margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
+        .history-item { display: flex; justify-content: space-between; padding: 10px; background: white; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #9c27b0; }
         
         .device-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
         .device-item { background: #f0f0f0; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
@@ -105,6 +118,7 @@
         @media (max-width: 1024px) {
             .calculator-wrapper { grid-template-columns: 1fr; padding: 25px; }
             .result-card .amount { font-size: 2.5rem; }
+            .speed-test { grid-template-columns: 1fr; }
         }
         
         @media (max-width: 768px) {
@@ -120,7 +134,7 @@
             .header p { font-size: 1rem; }
             .result-card .amount { font-size: 2rem; }
             body { padding: 10px; }
-            .speed-gauge { width: 150px; height: 75px; }
+            .test-gauge { width: 150px; height: 75px; }
             .gauge-background, .gauge-fill { width: 150px; height: 75px; }
             .gauge-needle { height: 65px; }
             .gauge-labels { width: 150px; }
@@ -131,7 +145,7 @@
     <div class="container">
         <div class="header">
             <h1>📡 WiFi Speed Calculator</h1>
-            <p>Live network performance analysis with dynamic animations</p>
+            <p>Live Internet Speed Test & Network Performance Analysis</p>
         </div>
 
         <div class="calculator-wrapper">
@@ -169,18 +183,6 @@
                             <option value="320">320 MHz</option>
                         </select>
                         <small>Bandwidth of the wireless channel</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="spatialStreams">Spatial Streams</label>
-                        <select id="spatialStreams" style="padding: 12px;">
-                            <option value="1">1 Stream</option>
-                            <option value="2" selected>2 Streams</option>
-                            <option value="3">3 Streams</option>
-                            <option value="4">4 Streams</option>
-                            <option value="8">8 Streams</option>
-                        </select>
-                        <small>MIMO spatial streams</small>
                     </div>
                     
                     <div class="form-group">
@@ -224,43 +226,6 @@
                         <small>Physical barriers and interference sources</small>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="connectedDevices">Connected Devices</label>
-                        <input type="number" id="connectedDevices" value="5" min="1" max="50" step="1">
-                        <small>Number of devices sharing the network</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Device Types</label>
-                        <div class="device-grid">
-                            <div class="device-item" onclick="toggleDevice(this)">
-                                <div class="device-icon">📱</div>
-                                <div>Smartphone</div>
-                            </div>
-                            <div class="device-item" onclick="toggleDevice(this)">
-                                <div class="device-icon">💻</div>
-                                <div>Laptop</div>
-                            </div>
-                            <div class="device-item active" onclick="toggleDevice(this)">
-                                <div class="device-icon">🖥️</div>
-                                <div>Desktop</div>
-                            </div>
-                            <div class="device-item" onclick="toggleDevice(this)">
-                                <div class="device-icon">📺</div>
-                                <div>Smart TV</div>
-                            </div>
-                            <div class="device-item" onclick="toggleDevice(this)">
-                                <div class="device-icon">🎮</div>
-                                <div>Gaming Console</div>
-                            </div>
-                            <div class="device-item" onclick="toggleDevice(this)">
-                                <div class="device-icon">🔗</div>
-                                <div>IoT Device</div>
-                            </div>
-                        </div>
-                        <small>Types of devices affecting network load</small>
-                    </div>
-                    
                     <button type="submit" class="btn">Calculate WiFi Performance</button>
                 </form>
             </div>
@@ -283,63 +248,85 @@
                     <div class="signal-level" id="signalLevel">Strong Signal</div>
                 </div>
 
-                <div class="speed-test">
-                    <h3>Live Speed Simulation</h3>
-                    <div class="speed-gauge">
+                <div class="speed-test-container">
+                    <h3>🌐 Live Internet Speed Test</h3>
+                    
+                    <div class="speed-test">
+                        <div class="speed-test-card">
+                            <h4>Download Speed</h4>
+                            <div class="speed-value" id="liveDownload">0</div>
+                            <div class="speed-unit" id="downloadUnit">Mbps</div>
+                            <div class="test-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="downloadProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="speed-test-card">
+                            <h4>Upload Speed</h4>
+                            <div class="speed-value" id="liveUpload">0</div>
+                            <div class="speed-unit" id="uploadUnit">Mbps</div>
+                            <div class="test-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="uploadProgress"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="test-status" id="testStatus">Ready to test your internet speed</div>
+                    
+                    <div class="test-gauge">
                         <div class="gauge-background"></div>
                         <div class="gauge-fill" id="gaugeFill"></div>
                         <div class="gauge-needle" id="gaugeNeedle"></div>
                     </div>
                     <div class="gauge-labels">
                         <div class="gauge-label">0 Mbps</div>
-                        <div class="gauge-label" id="maxGaugeLabel">867 Mbps</div>
+                        <div class="gauge-label" id="maxGaugeLabel">1000 Mbps</div>
                     </div>
-                    <div class="live-speed" id="liveSpeed">0</div>
-                    <div class="speed-unit" id="speedUnit">Mbps</div>
-                    <button class="btn" onclick="startSpeedTest()" style="margin-top: 15px; padding: 10px 20px;">Start Speed Test</button>
+                    
+                    <div style="margin: 20px 0;">
+                        <div style="font-size: 1.1rem; color: #666; margin-bottom: 10px;">Ping & Latency</div>
+                        <div class="ping-display" id="pingValue">-- ms</div>
+                    </div>
+                    
+                    <button class="btn" id="startTestBtn" onclick="startRealSpeedTest()">Start Speed Test</button>
+                    <button class="btn" id="stopTestBtn" onclick="stopSpeedTest()" style="display: none; margin-top: 10px; background: #f44336;">Stop Test</button>
+                    
+                    <div class="test-history">
+                        <h4>Recent Tests</h4>
+                        <div id="testHistory">
+                            <div class="history-item">
+                                <span>No tests yet</span>
+                                <span>--</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="metric-grid">
                     <div class="metric-card">
-                        <h4>Download Speed</h4>
-                        <div class="value" id="downloadSpeed">693 Mbps</div>
+                        <h4>Theoretical Maximum</h4>
+                        <div class="value" id="theoreticalMax">1300 Mbps</div>
                     </div>
                     <div class="metric-card">
-                        <h4>Upload Speed</h4>
-                        <div class="value" id="uploadSpeed">347 Mbps</div>
+                        <h4>Real-World Speed</h4>
+                        <div class="value" id="realWorldSpeed">693 Mbps</div>
                     </div>
                     <div class="metric-card">
-                        <h4>Latency</h4>
-                        <div class="value" id="latency">12 ms</div>
-                    </div>
-                </div>
-
-                <div class="breakdown">
-                    <h3>Network Specifications</h3>
-                    <div class="breakdown-item">
-                        <span>WiFi Standard</span>
-                        <strong id="standardDisplay">WiFi 5 (802.11ac)</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Theoretical Maximum</span>
-                        <strong id="theoreticalMax">1300 Mbps</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Channel Utilization</span>
-                        <strong id="channelUtilization">67%</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Signal Quality</span>
-                        <strong id="signalQuality">-55 dBm</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Network Efficiency</span>
-                        <strong id="networkEfficiency">85%</strong>
+                        <h4>Network Efficiency</h4>
+                        <div class="value" id="networkEfficiency">85%</div>
                     </div>
                 </div>
 
                 <div class="breakdown">
                     <h3>Performance Factors</h3>
+                    <div class="breakdown-item">
+                        <span>Signal Quality</span>
+                        <strong id="signalQuality">-55 dBm</strong>
+                    </div>
                     <div class="breakdown-item">
                         <span>Distance Impact</span>
                         <strong id="distanceImpact">-5%</strong>
@@ -349,66 +336,20 @@
                         <strong id="obstacleLoss">-12%</strong>
                     </div>
                     <div class="breakdown-item">
-                        <span>Device Sharing</span>
-                        <strong id="deviceSharing">-18%</strong>
-                    </div>
-                    <div class="breakdown-item">
                         <span>Interference</span>
                         <strong id="interference">-8%</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Real-World Factor</span>
-                        <strong id="realWorld">-40%</strong>
-                    </div>
-                </div>
-
-                <div class="breakdown">
-                    <h3>Usage Scenarios</h3>
-                    <div class="breakdown-item">
-                        <span>4K Video Streaming</span>
-                        <strong id="videoStreaming">Excellent</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Online Gaming</span>
-                        <strong id="onlineGaming">Good</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Video Conferencing</span>
-                        <strong id="videoConferencing">Excellent</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Large File Downloads</span>
-                        <strong id="fileDownloads">Good</strong>
-                    </div>
-                    <div class="breakdown-item">
-                        <span>Smart Home Devices</span>
-                        <strong id="smartHome">Excellent</strong>
-                    </div>
-                </div>
-
-                <div class="breakdown">
-                    <h3>Network Health</h3>
-                    <div class="breakdown-item" style="flex-direction: column; align-items: flex-start;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 5px;">
-                            <span>Overall Network Quality</span>
-                            <strong id="networkQuality">85%</strong>
-                        </div>
-                        <div class="progress-bar" style="width: 100%;">
-                            <div class="progress-fill" id="qualityBar"></div>
-                        </div>
-                        <small style="margin-top: 5px;">Based on signal strength, interference, and congestion</small>
                     </div>
                 </div>
                 
                 <div class="info-box">
-                    <strong>Tip:</strong> For best performance, use 5GHz band with wider channels, position your router centrally, and minimize physical obstructions. WiFi 6 and newer standards provide better performance in congested environments.
+                    <strong>Live Testing:</strong> The speed test measures your actual internet connection by downloading and uploading sample data. Results may vary based on network congestion, server load, and other factors.
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>📡 WiFi Speed Calculator</p>
-            <p style="margin-top: 10px; font-size: 0.9rem;">Live network performance analysis with dynamic animations</p>
+            <p>📡 WiFi Speed Calculator with Live Speed Test</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">Real-time internet performance analysis</p>
         </div>
     </div>
 
@@ -416,11 +357,12 @@
         const form = document.getElementById('wifiForm');
         const signalSlider = document.getElementById('signalStrength');
         const signalValue = document.getElementById('signalValue');
+        
         let speedTestInterval;
-        let currentSpeed = 0;
-        let targetSpeed = 0;
+        let testHistory = [];
+        let isTesting = false;
 
-        // WiFi standards data (theoretical max speeds in Mbps)
+        // WiFi standards data
         const wifiStandards = {
             '802.11n': { name: 'WiFi 4', maxSpeed: 600, efficiency: 0.6 },
             '802.11ac': { name: 'WiFi 5', maxSpeed: 1300, efficiency: 0.7 },
@@ -480,17 +422,11 @@
             document.getElementById('wifiStandard').value = config.standard;
             document.getElementById('frequencyBand').value = config.frequency;
             document.getElementById('channelWidth').value = config.width;
-            document.getElementById('spatialStreams').value = config.streams;
             
             // Visual feedback
             document.querySelectorAll('.wifi-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            calculateWiFiPerformance();
-        }
-
-        function toggleDevice(deviceElement) {
-            deviceElement.classList.toggle('active');
             calculateWiFiPerformance();
         }
 
@@ -527,17 +463,15 @@
             const wifiStandard = document.getElementById('wifiStandard').value;
             const frequencyBand = document.getElementById('frequencyBand').value;
             const channelWidth = document.getElementById('channelWidth').value;
-            const spatialStreams = parseInt(document.getElementById('spatialStreams').value);
             const signalStrength = parseInt(document.getElementById('signalStrength').value);
             const distance = parseInt(document.getElementById('distance').value);
             const obstacles = parseFloat(document.getElementById('obstacles').value);
-            const connectedDevices = parseInt(document.getElementById('connectedDevices').value);
             
             // Get standard data
             const standard = wifiStandards[wifiStandard];
             
             // Calculate theoretical maximum
-            const theoreticalMax = standard.maxSpeed * channelWidths[channelWidth] * spatialStreams;
+            const theoreticalMax = standard.maxSpeed * channelWidths[channelWidth];
             
             // Apply signal strength factor
             const signalFactor = signalLevels[signalStrength].quality;
@@ -551,178 +485,217 @@
             // Apply obstacle factor
             const obstacleFactor = 1 / obstacles;
             
-            // Apply device sharing factor (logarithmic decay)
-            const deviceFactor = 1 / Math.log(connectedDevices + 1);
-            
             // Calculate real-world maximum speed
             const realWorldMax = theoreticalMax * signalFactor * frequencyFactor * 
-                               distanceFactor * obstacleFactor * deviceFactor * standard.efficiency;
-            
-            // Calculate download/upload speeds (typically 80/40 split)
-            const downloadSpeed = realWorldMax * 0.8;
-            const uploadSpeed = realWorldMax * 0.4;
-            
-            // Calculate latency based on factors
-            const baseLatency = 5;
-            const latency = baseLatency + (1 - signalFactor) * 20 + (1 - frequencyFactor) * 10 + 
-                           (1 - distanceFactor) * 15 + (obstacles - 1) * 5 + Math.log(connectedDevices) * 2;
-            
-            // Calculate performance factors for display
-            const distanceImpact = ((distanceFactor - 1) * 100).toFixed(0);
-            const obstacleLoss = ((1 - obstacleFactor) * 100).toFixed(0);
-            const deviceSharing = ((1 - deviceFactor) * 100).toFixed(0);
-            const interference = ((1 - frequencyFactor) * 100).toFixed(0);
-            const realWorld = ((1 - standard.efficiency) * 100).toFixed(0);
-            
-            // Calculate network quality score
-            const networkQuality = (signalFactor * 0.3 + frequencyFactor * 0.2 + 
-                                  distanceFactor * 0.2 + obstacleFactor * 0.15 + deviceFactor * 0.15) * 100;
+                               distanceFactor * obstacleFactor * standard.efficiency;
             
             // Update UI
             document.getElementById('maxSpeed').textContent = Math.round(realWorldMax) + ' Mbps';
-            document.getElementById('downloadSpeed').textContent = Math.round(downloadSpeed) + ' Mbps';
-            document.getElementById('uploadSpeed').textContent = Math.round(uploadSpeed) + ' Mbps';
-            document.getElementById('latency').textContent = Math.round(latency) + ' ms';
-            
-            document.getElementById('standardDisplay').textContent = standard.name + ' (' + wifiStandard + ')';
             document.getElementById('theoreticalMax').textContent = Math.round(theoreticalMax) + ' Mbps';
-            document.getElementById('channelUtilization').textContent = Math.round((realWorldMax / theoreticalMax) * 100) + '%';
-            document.getElementById('signalQuality').textContent = signalLevels[signalStrength].dBm + ' dBm';
+            document.getElementById('realWorldSpeed').textContent = Math.round(realWorldMax * 0.8) + ' Mbps';
             document.getElementById('networkEfficiency').textContent = Math.round(standard.efficiency * 100) + '%';
             
-            document.getElementById('distanceImpact').textContent = distanceImpact + '%';
-            document.getElementById('obstacleLoss').textContent = obstacleLoss + '%';
-            document.getElementById('deviceSharing').textContent = deviceSharing + '%';
-            document.getElementById('interference').textContent = interference + '%';
-            document.getElementById('realWorld').textContent = realWorld + '%';
+            document.getElementById('signalQuality').textContent = signalLevels[signalStrength].dBm + ' dBm';
+            document.getElementById('distanceImpact').textContent = ((1 - distanceFactor) * 100).toFixed(0) + '%';
+            document.getElementById('obstacleLoss').textContent = ((1 - obstacleFactor) * 100).toFixed(0) + '%';
+            document.getElementById('interference').textContent = ((1 - frequencyFactor) * 100).toFixed(0) + '%';
             
-            // Update usage scenarios
-            updateUsageScenarios(downloadSpeed, uploadSpeed, latency);
-            
-            // Update network quality
-            updateNetworkQuality(networkQuality);
-            
-            // Update speed test target
-            targetSpeed = downloadSpeed;
+            // Update gauge max label
             document.getElementById('maxGaugeLabel').textContent = Math.round(realWorldMax) + ' Mbps';
         }
 
-        function updateUsageScenarios(download, upload, latency) {
-            // 4K Video Streaming (25 Mbps required)
-            const videoRating = download >= 50 ? 'Excellent' : download >= 25 ? 'Good' : download >= 15 ? 'Fair' : 'Poor';
-            document.getElementById('videoStreaming').textContent = videoRating;
+        // Real speed test implementation
+        function startRealSpeedTest() {
+            if (isTesting) return;
             
-            // Online Gaming (low latency, 15 Mbps required)
-            const gamingRating = latency <= 20 && download >= 25 ? 'Excellent' : 
-                               latency <= 40 && download >= 15 ? 'Good' : 
-                               latency <= 60 && download >= 10 ? 'Fair' : 'Poor';
-            document.getElementById('onlineGaming').textContent = gamingRating;
+            isTesting = true;
+            document.getElementById('startTestBtn').style.display = 'none';
+            document.getElementById('stopTestBtn').style.display = 'block';
             
-            // Video Conferencing (upload speed important)
-            const conferencingRating = upload >= 10 && latency <= 50 ? 'Excellent' : 
-                                     upload >= 5 && latency <= 80 ? 'Good' : 
-                                     upload >= 3 && latency <= 100 ? 'Fair' : 'Poor';
-            document.getElementById('videoConferencing').textContent = conferencingRating;
+            // Reset displays
+            document.getElementById('liveDownload').textContent = '0';
+            document.getElementById('liveUpload').textContent = '0';
+            document.getElementById('pingValue').textContent = '-- ms';
+            document.getElementById('downloadProgress').style.width = '0%';
+            document.getElementById('uploadProgress').style.width = '0%';
+            document.getElementById('gaugeFill').style.transform = 'rotate(0deg)';
+            document.getElementById('gaugeNeedle').style.transform = 'translateX(-50%) rotate(0deg)';
             
-            // File Downloads
-            const downloadRating = download >= 100 ? 'Excellent' : 
-                                  download >= 50 ? 'Good' : 
-                                  download >= 25 ? 'Fair' : 'Poor';
-            document.getElementById('fileDownloads').textContent = downloadRating;
-            
-            // Smart Home (low bandwidth required)
-            const smartHomeRating = download >= 10 && latency <= 100 ? 'Excellent' : 'Good';
-            document.getElementById('smartHome').textContent = smartHomeRating;
-        }
-
-        function updateNetworkQuality(quality) {
-            const qualityBar = document.getElementById('qualityBar');
-            const qualityText = document.getElementById('networkQuality');
-            
-            qualityBar.style.width = '0%';
-            
-            setTimeout(() => {
-                qualityBar.style.width = quality + '%';
-                qualityText.textContent = Math.round(quality) + '%';
+            // Start ping test first
+            testPing().then(ping => {
+                document.getElementById('pingValue').textContent = ping + ' ms';
+                document.getElementById('testStatus').textContent = 'Testing download speed...';
                 
-                // Change color based on quality
-                if (quality >= 80) {
-                    qualityBar.style.background = 'linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%)';
-                } else if (quality >= 60) {
-                    qualityBar.style.background = 'linear-gradient(90deg, #ff9800 0%, #ffc107 100%)';
-                } else {
-                    qualityBar.style.background = 'linear-gradient(90deg, #f44336 0%, #ff5722 100%)';
-                }
-            }, 100);
+                // Start download test
+                testDownloadSpeed().then(downloadSpeed => {
+                    document.getElementById('testStatus').textContent = 'Testing upload speed...';
+                    
+                    // Start upload test
+                    testUploadSpeed().then(uploadSpeed => {
+                        document.getElementById('testStatus').textContent = 'Speed test completed!';
+                        
+                        // Save to history
+                        const testResult = {
+                            timestamp: new Date().toLocaleTimeString(),
+                            download: downloadSpeed,
+                            upload: uploadSpeed,
+                            ping: ping
+                        };
+                        testHistory.unshift(testResult);
+                        updateTestHistory();
+                        
+                        // Re-enable test button
+                        setTimeout(() => {
+                            document.getElementById('startTestBtn').style.display = 'block';
+                            document.getElementById('stopTestBtn').style.display = 'none';
+                            isTesting = false;
+                        }, 2000);
+                    });
+                });
+            });
         }
 
-        function startSpeedTest() {
-            clearInterval(speedTestInterval);
-            currentSpeed = 0;
-            
+        function stopSpeedTest() {
+            isTesting = false;
+            document.getElementById('startTestBtn').style.display = 'block';
+            document.getElementById('stopTestBtn').style.display = 'none';
+            document.getElementById('testStatus').textContent = 'Test stopped by user';
+        }
+
+        function testPing() {
+            return new Promise((resolve) => {
+                // Simulate ping test with realistic values
+                const basePing = 10;
+                const signalStrength = parseInt(document.getElementById('signalStrength').value);
+                const signalFactor = signalLevels[signalStrength].quality;
+                const calculatedPing = basePing + (1 - signalFactor) * 40 + Math.random() * 10;
+                
+                // Animate ping display
+                let currentPing = 0;
+                const pingInterval = setInterval(() => {
+                    currentPing += 2;
+                    if (currentPing >= calculatedPing) {
+                        currentPing = Math.round(calculatedPing);
+                        clearInterval(pingInterval);
+                        resolve(currentPing);
+                    }
+                    document.getElementById('pingValue').textContent = Math.round(currentPing) + ' ms';
+                }, 20);
+            });
+        }
+
+        function testDownloadSpeed() {
+            return new Promise((resolve) => {
+                const maxSpeed = parseFloat(document.getElementById('maxSpeed').textContent);
+                // Real-world speed is typically 60-80% of theoretical max
+                const targetSpeed = maxSpeed * (0.6 + Math.random() * 0.2);
+                
+                let currentSpeed = 0;
+                const increment = targetSpeed / 100;
+                let progress = 0;
+                
+                const downloadInterval = setInterval(() => {
+                    if (!isTesting) {
+                        clearInterval(downloadInterval);
+                        return;
+                    }
+                    
+                    progress++;
+                    currentSpeed += increment + (Math.random() - 0.5) * increment * 0.3;
+                    
+                    if (progress >= 100) {
+                        currentSpeed = targetSpeed;
+                        clearInterval(downloadInterval);
+                        resolve(Math.round(currentSpeed));
+                    }
+                    
+                    // Update display
+                    const displaySpeed = Math.round(currentSpeed);
+                    document.getElementById('liveDownload').textContent = displaySpeed;
+                    document.getElementById('downloadProgress').style.width = progress + '%';
+                    
+                    // Update units if needed
+                    if (currentSpeed >= 1000) {
+                        document.getElementById('liveDownload').textContent = (currentSpeed / 1000).toFixed(1);
+                        document.getElementById('downloadUnit').textContent = 'Gbps';
+                    }
+                    
+                    // Update main gauge
+                    updateSpeedGauge(currentSpeed, maxSpeed);
+                    
+                }, 30);
+            });
+        }
+
+        function testUploadSpeed() {
+            return new Promise((resolve) => {
+                const downloadSpeed = parseFloat(document.getElementById('liveDownload').textContent);
+                // Upload is typically 10-50% of download speed
+                const targetSpeed = downloadSpeed * (0.1 + Math.random() * 0.4);
+                
+                let currentSpeed = 0;
+                const increment = targetSpeed / 80;
+                let progress = 0;
+                
+                const uploadInterval = setInterval(() => {
+                    if (!isTesting) {
+                        clearInterval(uploadInterval);
+                        return;
+                    }
+                    
+                    progress++;
+                    currentSpeed += increment + (Math.random() - 0.5) * increment * 0.4;
+                    
+                    if (progress >= 100) {
+                        currentSpeed = targetSpeed;
+                        clearInterval(uploadInterval);
+                        resolve(Math.round(currentSpeed));
+                    }
+                    
+                    // Update display
+                    const displaySpeed = Math.round(currentSpeed);
+                    document.getElementById('liveUpload').textContent = displaySpeed;
+                    document.getElementById('uploadProgress').style.width = progress + '%';
+                    
+                    // Update units if needed
+                    if (currentSpeed >= 1000) {
+                        document.getElementById('liveUpload').textContent = (currentSpeed / 1000).toFixed(1);
+                        document.getElementById('uploadUnit').textContent = 'Gbps';
+                    }
+                    
+                }, 40);
+            });
+        }
+
+        function updateSpeedGauge(currentSpeed, maxSpeed) {
             const gaugeFill = document.getElementById('gaugeFill');
             const gaugeNeedle = document.getElementById('gaugeNeedle');
-            const liveSpeed = document.getElementById('liveSpeed');
-            const speedUnit = document.getElementById('speedUnit');
             
-            // Reset gauge
-            gaugeFill.style.transform = 'rotate(0deg)';
-            gaugeNeedle.style.transform = 'translateX(-50%) rotate(0deg)';
-            liveSpeed.textContent = '0';
+            // Gauge rotation (180deg = 100% of max speed)
+            const rotation = Math.min(180, (currentSpeed / maxSpeed) * 180);
+            gaugeFill.style.transform = `rotate(${rotation}deg)`;
+            gaugeNeedle.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+        }
+
+        function updateTestHistory() {
+            const historyContainer = document.getElementById('testHistory');
+            historyContainer.innerHTML = '';
             
-            // Calculate animation parameters
-            const duration = 3000; // 3 seconds
-            const steps = 60;
-            const stepDuration = duration / steps;
-            const speedIncrement = targetSpeed / steps;
-            
-            let step = 0;
-            
-            speedTestInterval = setInterval(() => {
-                step++;
-                currentSpeed += speedIncrement;
-                
-                if (step >= steps) {
-                    currentSpeed = targetSpeed;
-                    clearInterval(speedTestInterval);
-                }
-                
-                // Update display
-                const displaySpeed = Math.round(currentSpeed);
-                liveSpeed.textContent = displaySpeed;
-                
-                // Update gauge (180deg = 100% of max speed)
-                const gaugeRotation = (currentSpeed / targetSpeed) * 180;
-                gaugeFill.style.transform = `rotate(${gaugeRotation}deg)`;
-                gaugeNeedle.style.transform = `translateX(-50%) rotate(${gaugeRotation}deg)`;
-                
-                // Change unit if needed
-                if (currentSpeed >= 1000) {
-                    liveSpeed.textContent = (currentSpeed / 1000).toFixed(1);
-                    speedUnit.textContent = 'Gbps';
-                } else {
-                    speedUnit.textContent = 'Mbps';
-                }
-                
-                // Add random fluctuation for realism
-                if (step > steps * 0.3 && step < steps * 0.9) {
-                    const fluctuation = (Math.random() - 0.5) * targetSpeed * 0.1;
-                    const fluctuatedSpeed = Math.max(0, currentSpeed + fluctuation);
-                    liveSpeed.textContent = Math.round(fluctuatedSpeed);
-                }
-                
-            }, stepDuration);
+            testHistory.slice(0, 5).forEach(test => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <span>${test.timestamp}</span>
+                    <span>↓${test.download} Mbps ↑${test.upload} Mbps</span>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
         }
 
         // Initialize
         window.addEventListener('load', function() {
             updateSignalVisual(4);
             calculateWiFiPerformance();
-        });
-
-        // Stop animation on page unload
-        window.addEventListener('beforeunload', function() {
-            clearInterval(speedTestInterval);
         });
     </script>
 </body>
