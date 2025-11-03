@@ -1,1 +1,7 @@
   
+# Analytics Log File
+# Format: [YYYY-MM-DD HH:MM:SS] EVENT: Data
+
+[2025-01-15 10:30:00] PAGE_VIEW: {"page": "/calculators/bmi-calculator", "user_id": null, "ip": "192.168.1.100"}
+[2025-01-15 10:30:15] CALCULATION: {"calculator_id": 6, "user_id": 123, "result": 24.5}
+[2025-01-15 10:31:00] USER_REGISTRATION: {"user_id": 456, "email": "user@example.com"}

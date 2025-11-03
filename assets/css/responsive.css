@@ -1,674 +1,172 @@
 /**
- * Responsive Stylesheet - Calculator Hub
- * 
- * Mobile-first responsive design with breakpoints:
- * - xs: 320px (Small phones)
- * - sm: 480px (Phones)
- * - md: 768px (Tablets)
- * - lg: 1024px (Laptops)
- * - xl: 1200px (Desktops)
- * - 2xl: 1536px (Large desktops)
- * 
- * @package CalculatorWebsite
- * @version 1.0.0
+ * Responsive Styles
+ * Mobile-first responsive design
  */
 
-/* ============================================
-   MOBILE FIRST BASE (320px+)
-   ============================================ */
-
-/* Touch-friendly tap targets */
-button, a, input, select, textarea {
-    min-height: 44px;
-    min-width: 44px;
-}
-
-/* Mobile container adjustments */
-.container {
-    padding: 0 var(--space-4);
-}
-
-/* Mobile typography */
-body {
-    font-size: 16px;
-}
-
-/* Mobile navigation - Hidden by default */
-.main-navigation {
-    display: none;
-}
-
-.mobile-menu-toggle {
-    display: flex;
-}
-
-/* Stack elements vertically on mobile */
-.hero-stats {
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-.navbar-wrapper {
-    flex-wrap: wrap;
-}
-
-.navbar-search {
-    order: 3;
-    width: 100%;
-    margin-top: var(--space-3);
-}
-
-/* Mobile grid defaults */
-.grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-}
-
-/* ============================================
-   SMALL PHONES (480px+)
-   ============================================ */
-
-@media (min-width: 480px) {
-    /* Slightly larger containers */
+/* Extra Small Devices (Phones, 320px and up) */
+@media (max-width: 575px) {
+    html {
+        font-size: 14px;
+    }
+    
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.75rem; }
+    h3 { font-size: 1.5rem; }
+    h4 { font-size: 1.25rem; }
+    h5 { font-size: 1.125rem; }
+    h6 { font-size: 1rem; }
+    
     .container {
-        padding: 0 var(--space-5);
+        padding: 0 var(--spacing-sm);
     }
     
-    /* Two column grid for small cards */
-    .categories-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Button groups */
-    .btn-group {
-        flex-wrap: wrap;
-    }
-    
-    /* Hero stats in row */
-    .hero-stats {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: var(--space-5);
-    }
-    
-    .hero-stat {
-        min-width: 150px;
-    }
-}
-
-/* ============================================
-   TABLETS (768px+)
-   ============================================ */
-
-@media (min-width: 768px) {
-    /* Show desktop navigation */
-    .main-navigation {
-        display: block;
-    }
-    
-    .mobile-menu-toggle {
-        display: none;
-    }
-    
-    /* Restore search bar position */
-    .navbar-search {
-        order: initial;
-        width: auto;
-        margin-top: 0;
-    }
-    
-    .navbar-wrapper {
-        flex-wrap: nowrap;
-    }
-    
-    /* Grid layouts */
-    .grid-cols-md-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .grid-cols-md-3 {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    /* Categories grid - 3 columns */
-    .categories-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--space-5);
-    }
-    
-    /* Calculator cards - 2 columns */
-    .calculators-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Features grid */
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    /* Hero section */
-    .hero-title {
-        font-size: clamp(2.5rem, 5vw, 3.5rem);
-    }
-    
-    .hero-subtitle {
-        font-size: 1.25rem;
-    }
-    
-    .hero-stats {
-        gap: var(--space-6);
-    }
-    
-    /* Section headers */
-    .section-title {
-        font-size: var(--font-4xl);
-    }
-    
-    /* Card layouts */
-    .card-body {
-        padding: var(--space-6);
-    }
-    
-    /* Form layouts */
-    .form-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-4);
-    }
-    
-    /* Sidebar visible */
-    .content-with-sidebar {
-        display: grid;
-        grid-template-columns: 1fr 300px;
-        gap: var(--space-6);
-    }
-    
-    /* Button sizes */
     .btn {
-        padding: var(--space-3) var(--space-6);
+        padding: 0.625rem 1.5rem;
+        font-size: 0.875rem;
     }
     
-    /* Alert positioning */
-    .alert {
-        padding: var(--space-5) var(--space-6);
-    }
-    
-    /* Breadcrumb */
-    .breadcrumb-nav {
-        padding: var(--space-4) 0;
-    }
-    
-    /* Footer grid */
-    .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* ============================================
-   LAPTOPS (1024px+)
-   ============================================ */
-
-@media (min-width: 1024px) {
-    /* Container width */
-    .container {
-        max-width: var(--container-lg);
-    }
-    
-    /* Categories grid - 4 columns */
-    .categories-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    /* Calculator cards - 3 columns */
-    .calculators-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    /* Features grid - 3 columns */
-    .features-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    /* Hero section enhancements */
-    .hero-section {
-        padding: 100px 20px;
-    }
-    
-    .hero-title {
-        font-size: var(--font-5xl);
-    }
-    
-    /* Hover effects enabled */
-    .category-card:hover,
-    .calculator-card:hover,
-    .feature-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    /* Navigation dropdowns */
-    .dropdown-menu {
-        min-width: 400px;
-    }
-    
-    /* Sidebar width */
-    .content-with-sidebar {
-        grid-template-columns: 1fr 350px;
-    }
-    
-    .sidebar {
-        position: sticky;
-        top: 80px;
-        height: fit-content;
-    }
-    
-    /* Section spacing */
-    section {
-        padding: 80px 20px;
-    }
-    
-    /* Footer grid */
-    .footer-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-    
-    /* Grid system */
-    .grid-cols-lg-3 {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .grid-cols-lg-4 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* ============================================
-   DESKTOPS (1200px+)
-   ============================================ */
-
-@media (min-width: 1200px) {
-    /* Container width */
-    .container {
-        max-width: var(--container-xl);
-    }
-    
-    /* Hero enhancements */
-    .hero-section {
-        padding: 120px 20px;
-    }
-    
-    /* Categories grid - maintain 4 columns with larger gaps */
-    .categories-grid {
-        gap: var(--space-6);
-    }
-    
-    /* Calculator cards - 3 columns with larger gaps */
-    .calculators-grid {
-        gap: var(--space-6);
-    }
-    
-    /* Section spacing */
-    section {
-        padding: 100px 20px;
-    }
-    
-    /* Typography scale up */
-    .section-title {
-        font-size: var(--font-5xl);
-    }
-    
-    /* Navigation menu spacing */
-    .nav-menu {
-        gap: var(--space-2);
-    }
-    
-    /* Form layouts - 3 columns */
-    .form-row-lg {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    /* Card enhancements */
     .card-body {
-        padding: var(--space-7);
+        padding: var(--spacing-md);
     }
     
-    /* Grid utilities */
-    .grid-cols-xl-4 {
-        grid-template-columns: repeat(4, 1fr);
+    .navbar-nav {
+        flex-direction: column;
+        gap: var(--spacing-sm);
     }
     
-    .grid-cols-xl-5 {
-        grid-template-columns: repeat(5, 1fr);
-    }
-}
-
-/* ============================================
-   LARGE DESKTOPS (1536px+)
-   ============================================ */
-
-@media (min-width: 1536px) {
-    /* Container width */
-    .container {
-        max-width: var(--container-2xl);
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
     }
     
-    /* Hero section */
-    .hero-title {
-        font-size: clamp(3.5rem, 6vw, 4rem);
-    }
-    
-    /* Categories grid - 5 columns on very large screens */
-    .categories-grid {
-        grid-template-columns: repeat(5, 1fr);
-    }
-    
-    /* Calculator cards - 4 columns */
-    .calculators-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-
-/* ============================================
-   RESPONSIVE UTILITIES
-   ============================================ */
-
-/* Hide/Show at breakpoints */
-@media (max-width: 767px) {
-    .hide-mobile {
+    /* Hide on mobile */
+    .d-sm-none {
         display: none !important;
     }
 }
 
+/* Small Devices (Landscape phones, 576px and up) */
+@media (min-width: 576px) {
+    .col-sm-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+    .col-sm-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+    .col-sm-3 { flex: 0 0 25%; max-width: 25%; }
+    .col-sm-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+    .col-sm-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+    .col-sm-6 { flex: 0 0 50%; max-width: 50%; }
+    .col-sm-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+    .col-sm-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+    .col-sm-9 { flex: 0 0 75%; max-width: 75%; }
+    .col-sm-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+    .col-sm-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+    .col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+}
+
+/* Medium Devices (Tablets, 768px and up) */
 @media (min-width: 768px) {
-    .show-mobile {
+    .col-md-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+    .col-md-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+    .col-md-3 { flex: 0 0 25%; max-width: 25%; }
+    .col-md-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+    .col-md-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+    .col-md-6 { flex: 0 0 50%; max-width: 50%; }
+    .col-md-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+    .col-md-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+    .col-md-9 { flex: 0 0 75%; max-width: 75%; }
+    .col-md-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+    .col-md-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+    .col-md-12 { flex: 0 0 100%; max-width: 100%; }
+    
+    .d-md-none {
         display: none !important;
+    }
+    
+    .d-md-block {
+        display: block !important;
     }
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-    .hide-tablet {
-        display: none !important;
-    }
-}
-
+/* Large Devices (Desktops, 1024px and up) */
 @media (min-width: 1024px) {
-    .hide-desktop {
+    .col-lg-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+    .col-lg-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+    .col-lg-3 { flex: 0 0 25%; max-width: 25%; }
+    .col-lg-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+    .col-lg-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+    .col-lg-6 { flex: 0 0 50%; max-width: 50%; }
+    .col-lg-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+    .col-lg-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+    .col-lg-9 { flex: 0 0 75%; max-width: 75%; }
+    .col-lg-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+    .col-lg-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+    .col-lg-12 { flex: 0 0 100%; max-width: 100%; }
+    
+    .d-lg-none {
         display: none !important;
+    }
+    
+    .d-lg-block {
+        display: block !important;
     }
 }
 
-/* ============================================
-   PRINT STYLES
-   ============================================ */
+/* Extra Large Devices (Large Desktops, 1200px and up) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .col-xl-1 { flex: 0 0 8.333333%; max-width: 8.333333%; }
+    .col-xl-2 { flex: 0 0 16.666667%; max-width: 16.666667%; }
+    .col-xl-3 { flex: 0 0 25%; max-width: 25%; }
+    .col-xl-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+    .col-xl-5 { flex: 0 0 41.666667%; max-width: 41.666667%; }
+    .col-xl-6 { flex: 0 0 50%; max-width: 50%; }
+    .col-xl-7 { flex: 0 0 58.333333%; max-width: 58.333333%; }
+    .col-xl-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+    .col-xl-9 { flex: 0 0 75%; max-width: 75%; }
+    .col-xl-10 { flex: 0 0 83.333333%; max-width: 83.333333%; }
+    .col-xl-11 { flex: 0 0 91.666667%; max-width: 91.666667%; }
+    .col-xl-12 { flex: 0 0 100%; max-width: 100%; }
+}
 
+/* Touch Devices */
+@media (hover: none) and (pointer: coarse) {
+    .btn {
+        min-height: 44px; /* Touch-friendly size */
+        min-width: 44px;
+    }
+    
+    .form-control {
+        min-height: 44px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    select.form-control {
+        font-size: 16px;
+    }
+}
+
+/* Print Styles */
 @media print {
-    /* Hide unnecessary elements */
     .navbar,
-    .sidebar,
     .footer,
     .btn,
-    .ad-container,
-    .mobile-menu-toggle,
-    .theme-toggle,
-    .back-to-top,
-    .cookie-consent {
+    .ad-container {
         display: none !important;
     }
     
-    /* Optimize for printing */
     body {
         font-size: 12pt;
-        line-height: 1.5;
-        color: #000;
-        background: #fff;
+        color: black;
     }
     
     a {
         text-decoration: underline;
-        color: #000;
-    }
-    
-    /* Page breaks */
-    .page-break {
-        page-break-after: always;
-    }
-    
-    /* Avoid breaks inside elements */
-    .card,
-    .calculator-card,
-    .category-card {
-        page-break-inside: avoid;
-    }
-    
-    /* Show URLs after links */
-    a[href]::after {
-        content: " (" attr(href) ")";
-    }
-}
-
-/* ============================================
-   LANDSCAPE ORIENTATION
-   ============================================ */
-
-@media (orientation: landscape) and (max-height: 600px) {
-    /* Reduce hero padding on landscape phones */
-    .hero-section {
-        padding: 40px 20px;
-    }
-    
-    .hero-title {
-        font-size: 2rem;
-        margin-bottom: var(--space-3);
-    }
-    
-    .hero-subtitle {
-        font-size: 1rem;
-        margin-bottom: var(--space-4);
-    }
-    
-    .hero-stats {
-        display: none;
-    }
-}
-
-/* ============================================
-   TOUCH DEVICE OPTIMIZATIONS
-   ============================================ */
-
-@media (hover: none) and (pointer: coarse) {
-    /* Larger touch targets */
-    button,
-    a,
-    input,
-    select,
-    textarea {
-        min-height: 48px;
-        min-width: 48px;
-    }
-    
-    /* Remove hover effects on touch devices */
-    .category-card:hover,
-    .calculator-card:hover,
-    .feature-card:hover,
-    .btn:hover {
-        transform: none;
-    }
-    
-    /* Add active states instead */
-    .category-card:active,
-    .calculator-card:active,
-    .feature-card:active {
-        transform: scale(0.98);
-    }
-    
-    /* Increase button padding */
-    .btn {
-        padding: var(--space-4) var(--space-6);
-    }
-    
-    /* Larger form controls */
-    .form-control {
-        padding: var(--space-4) var(--space-5);
-        font-size: 16px; /* Prevents zoom on iOS */
-    }
-    
-    /* Increase navbar height */
-    .navbar {
-        padding: var(--space-4) 0;
-    }
-}
-
-/* ============================================
-   REDUCED MOTION
-   ============================================ */
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
-/* ============================================
-   HIGH CONTRAST MODE
-   ============================================ */
-
-@media (prefers-contrast: high) {
-    :root {
-        --border-color: #000;
-        --shadow-md: none;
-        --shadow-lg: none;
-    }
-    
-    .btn {
-        border-width: 3px;
+        color: black;
     }
     
     .card {
-        border-width: 3px;
-    }
-    
-    .form-control {
-        border-width: 3px;
+        border: 1px solid #ddd;
+        box-shadow: none;
     }
 }
-
-/* ============================================
-   CONTAINER QUERIES (MODERN BROWSERS)
-   ============================================ */
-
-@supports (container-type: inline-size) {
-    .card-container {
-        container-type: inline-size;
-    }
-    
-    @container (min-width: 400px) {
-        .card-body {
-            padding: var(--space-6);
-        }
-    }
-}
-
-/* ============================================
-   FLEXIBLE LAYOUTS WITH CLAMP()
-   ============================================ */
-
-.responsive-padding {
-    padding: clamp(1rem, 5vw, 3rem);
-}
-
-.responsive-gap {
-    gap: clamp(1rem, 3vw, 2rem);
-}
-
-.responsive-text {
-    font-size: clamp(0.875rem, 2vw, 1.125rem);
-}
-
-.responsive-heading {
-    font-size: clamp(1.5rem, 4vw, 3rem);
-}
-
-/* ============================================
-   SCROLLBAR STYLES (WEBKIT BROWSERS)
-   ============================================ */
-
-@media (min-width: 1024px) {
-    /* Custom scrollbar for desktop */
-    ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        background: var(--bg-secondary);
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        background: var(--border-color);
-        border-radius: var(--radius-full);
-    }
-    
-    ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-secondary);
-    }
-}
-
-/* ============================================
-   MOBILE SAFARI FIXES
-   ============================================ */
-
-@supports (-webkit-touch-callout: none) {
-    /* Fix for iOS Safari viewport height */
-    .full-height {
-        height: -webkit-fill-available;
-    }
-    
-    /* Prevent iOS zoom on input focus */
-    input,
-    select,
-    textarea {
-        font-size: 16px !important;
-    }
-    
-    /* Fix sticky positioning on iOS */
-    .sticky-nav {
-        position: -webkit-sticky;
-        position: sticky;
-    }
-}
-
-/* ============================================
-   ASPECT RATIO UTILITIES
-   ============================================ */
-
-.aspect-square {
-    aspect-ratio: 1 / 1;
-}
-
-.aspect-video {
-    aspect-ratio: 16 / 9;
-}
-
-.aspect-4-3 {
-    aspect-ratio: 4 / 3;
-}
-
-/* Fallback for browsers without aspect-ratio support */
-@supports not (aspect-ratio: 1 / 1) {
-    .aspect-square::before {
-        content: '';
-        display: block;
-        padding-bottom: 100%;
-    }
-    
-    .aspect-video::before {
-        content: '';
-        display: block;
-        padding-bottom: 56.25%;
-    }
-}  

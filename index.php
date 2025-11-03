@@ -1,136 +1,433 @@
 <?php
-/**
- * Homepage - Calculator Hub
- * 
- * Main landing page featuring:
- * - Hero section with search
- * - 14 category grid
- * - Popular calculators
- * - Features section
- * - Recent calculations
- * 
- * @package CalculatorWebsite
- * @version 1.0.0
- */
+require_once 'config.php';
+require_once 'router.php';
 
-// Start session
-session_start();
-
-// Include configuration
-require_once 'config/config.php';
-require_once 'config/database.php';
-
-// Include core functions
-require_once 'includes/functions.php';
-require_once 'includes/meta.php';
-require_once 'includes/ads.php';
-
-// Set page metadata
-$page_meta = [
-    'title' => 'Free Online Calculators - 300+ Tools for Every Need',
-    'description' => 'Access 300+ free online calculators across 14 categories including math, finance, health, conversion tools, and more. Fast, accurate, and easy-to-use calculation tools.',
-    'keywords' => 'online calculator, free calculator, math calculator, financial calculator, conversion tool, calculator hub',
-    'type' => 'website'
-];
-
-// Hide breadcrumb on homepage
-$hide_breadcrumb = true;
-
-// Include header
-include 'includes/header.php';
-?>
-
-<style>
-/* ============================================
-   HOMEPAGE STYLES
-   ============================================ */
-
-/* Hero Section */
-.hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 80px 20px;
-    text-align: center;
-    color: white;
-    position: relative;
-    overflow: hidden;
+$request_uri = $_SERVER['REQUEST_URI'];
+if (strpos($request_uri, 'index.php') === false && $request_uri !== '/' && $request_uri !== '/Calculator' && $request_uri !== '/Calculator/') {
+    Router::dispatch();
+    exit;
 }
 
-.hero-section::before {
-    content: '';
+$page_title = "Calculator - Free Online Calculators for Every Need";
+$page_description = "Access 300+ free online calculators for financial, health, math, conversion, and more. Fast, accurate, and easy to use.";
+
+try {
+    $db = Database::getInstance();
+    $categories = $db->fetchAll("
+        SELECT * FROM categories 
+        WHERE is_active = 1 
+        ORDER BY display_order ASC
+    ");
+} catch (Exception $e) {
+    $categories = [];
+}
+
+require_once 'includes/header.php';
+?>
+
+<!-- Hero Section with Animated Background -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-shape shape-1"></div>
+        <div class="hero-shape shape-2"></div>
+        <div class="hero-shape shape-3"></div>
+        <div class="hero-particles"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-badge" data-aos="fade-down">
+                <i class="fas fa-star"></i>
+                <span>300+ Free Calculators</span>
+            </div>
+            
+            <h1 class="hero-title" data-aos="fade-up" data-aos-delay="100">
+                Professional Calculator Tools
+            </h1>
+            
+            <p class="hero-subtitle" data-aos="fade-up" data-aos-delay="200">
+                Access 300+ free online calculators for finance, health, math, conversions, and more.<br>
+                Fast, accurate, and easy to use.
+            </p>
+            
+            <div class="hero-stats" data-aos="fade-up" data-aos-delay="300">
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="stat-number" data-count="300">0</div>
+                    <div class="stat-label">Calculators</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stat-number" data-count="14">0</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="stat-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Free</div>
+                </div>
+            </div>
+            
+            <div class="hero-cta" data-aos="fade-up" data-aos-delay="400">
+                <a href="#categories" class="btn-hero btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Explore Calculators
+                </a>
+                <a href="<?php echo SITE_URL; ?>/about.php" class="btn-hero btn-secondary">
+                    <i class="fas fa-info-circle"></i>
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="hero-scroll">
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section" id="categories">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <span class="section-badge">Browse Tools</span>
+            <h2>Calculator Categories</h2>
+            <p>Choose from our comprehensive collection of professional calculator tools</p>
+        </div>
+        
+        <div class="categories-grid">
+            <!-- Financial -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="0">
+                <a href="<?php echo SITE_URL; ?>/calculators/financial/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Financial</h3>
+                    <p>Mortgage, loans, investments, tax calculators and more</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 58 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Health & Fitness -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="100">
+                <a href="<?php echo SITE_URL; ?>/calculators/health/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Health & Fitness</h3>
+                    <p>BMI, calorie, fitness, and wellness calculators</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 40 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Math -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="200">
+                <a href="<?php echo SITE_URL; ?>/calculators/math/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            <i class="fas fa-square-root-alt"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Math</h3>
+                    <p>Scientific, algebra, geometry, statistics calculators</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 42 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Conversion -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="300">
+                <a href="<?php echo SITE_URL; ?>/calculators/conversion/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Conversion</h3>
+                    <p>Unit converters for length, weight, temperature</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 40 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Date & Time -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="400">
+                <a href="<?php echo SITE_URL; ?>/calculators/date-time/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Date & Time</h3>
+                    <p>Age, date difference, time calculators</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 16 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Sports -->
+            <div class="category-card" data-aos="fade-up" data-aos-delay="500">
+                <a href="<?php echo SITE_URL; ?>/calculators/sports/">
+                    <div class="category-icon-wrapper">
+                        <div class="category-icon" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">
+                            <i class="fas fa-running"></i>
+                        </div>
+                        <div class="category-glow"></div>
+                    </div>
+                    <h3>Sports</h3>
+                    <p>Pace, time, performance calculators</p>
+                    <div class="category-footer">
+                        <span class="category-count">
+                            <i class="fas fa-calculator"></i> 8 tools
+                        </span>
+                        <span class="category-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
+        <div class="view-all-wrapper" data-aos="fade-up" data-aos-delay="600">
+            <a href="<?php echo SITE_URL; ?>/calculators/" class="btn-view-all">
+                View All Categories
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="section-header" data-aos="fade-up">
+            <span class="section-badge">Why Choose Us</span>
+            <h2>Professional Tools You Can Trust</h2>
+            <p>Everything you need for accurate calculations</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="0">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-check"></i>
+                </div>
+                <h3>100% Accurate</h3>
+                <p>Every calculator uses professionally verified formulas to ensure precise results every time.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>Mobile Friendly</h3>
+                <p>Fully responsive design works perfectly on smartphones, tablets, and desktop computers.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="feature-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3>Privacy First</h3>
+                <p>No registration required. Your data stays private and is never stored or shared with anyone.</p>
+            </div>
+            
+            <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3>Lightning Fast</h3>
+                <p>Instant calculations with optimized algorithms for the fastest results possible.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Hero Section with Animations */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.hero-background {
     position: absolute;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.hero-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.3;
+    animation: float 20s infinite ease-in-out;
+}
+
+.shape-1 {
+    width: 600px;
+    height: 600px;
+    background: #ff6b9d;
+    top: -200px;
+    right: -200px;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 400px;
+    height: 400px;
+    background: #4facfe;
+    bottom: -100px;
+    left: -100px;
+    animation-delay: 5s;
+}
+
+.shape-3 {
+    width: 500px;
+    height: 500px;
+    background: #43e97b;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 10s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(50px, -50px) scale(1.1);
+    }
+    66% {
+        transform: translate(-50px, 50px) scale(0.9);
+    }
 }
 
 .hero-content {
-    max-width: 900px;
-    margin: 0 auto;
     position: relative;
     z-index: 1;
+    text-align: center;
+    color: white;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+}
+
+.hero-badge i {
+    color: #ffd700;
+    animation: rotate 3s infinite linear;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .hero-title {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 4rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
     line-height: 1.2;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: rgba(222, 211, 211, 1);
+    /* text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
+    text-shadow: 0 4px 20px rgba(235, 228, 228, 0.2);
 }
 
 .hero-subtitle {
     font-size: 1.25rem;
-    margin-bottom: 40px;
+    margin-bottom: 3rem;
     opacity: 0.95;
-    line-height: 1.6;
-}
-
-.hero-search {
-    max-width: 700px;
-    margin: 0 auto 30px;
-}
-
-.hero-search-form {
-    position: relative;
-}
-
-.hero-search-input {
-    width: 100%;
-    padding: 20px 60px 20px 25px;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.1rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
-
-.hero-search-button {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.hero-search-button:hover {
-    background: #0056b3;
-    transform: translateY(-50%) scale(1.05);
+    line-height: 1.8;
 }
 
 .hero-stats {
     display: flex;
     justify-content: center;
-    gap: 40px;
-    margin-top: 40px;
+    gap: 3rem;
+    margin-bottom: 3rem;
     flex-wrap: wrap;
 }
 
@@ -138,306 +435,51 @@ include 'includes/header.php';
     text-align: center;
 }
 
-.hero-stat-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    display: block;
+.stat-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.hero-stat-label {
-    font-size: 0.9rem;
+.stat-icon i {
+    font-size: 2rem;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1.125rem;
     opacity: 0.9;
 }
 
-/* Category Grid Section */
-.categories-section {
-    padding: 80px 20px;
-    background: var(--bg-secondary);
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 15px;
-}
-
-.section-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-}
-
-.categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.category-card {
-    background: var(--bg-primary);
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 2px solid var(--border-color);
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--text-primary);
-}
-
-.category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border-color: var(--primary-color);
-}
-
-.category-icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    display: block;
-}
-
-.category-name {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.category-count {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.category-description {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-top: 10px;
-}
-
-/* Popular Calculators Section */
-.popular-section {
-    padding: 80px 20px;
-    background: var(--bg-primary);
-}
-
-.calculators-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.calculator-card {
-    background: var(--bg-primary);
-    padding: 25px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: var(--text-primary);
+.hero-cta {
     display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.calculator-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    border-color: var(--primary-color);
-}
-
-.calculator-icon-box {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    color: white;
-    flex-shrink: 0;
-}
-
-.calculator-details h3 {
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-
-.calculator-meta {
-    display: flex;
-    gap: 15px;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.calculator-meta span {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Features Section */
-.features-section {
-    padding: 80px 20px;
-    background: var(--bg-secondary);
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.feature-card {
-    background: var(--bg-primary);
-    padding: 35px;
-    border-radius: 12px;
-    text-align: center;
-    border: 2px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-.feature-icon {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 2rem;
-    color: white;
-}
-
-.feature-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 12px;
-    color: var(--text-primary);
-}
-
-.feature-description {
-    color: var(--text-secondary);
-    line-height: 1.6;
-}
-
-/* Recent Calculations Section */
-.recent-section {
-    padding: 80px 20px;
-    background: var(--bg-primary);
-}
-
-.recent-list {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.recent-calculation {
-    background: var(--bg-primary);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.recent-calculation:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-}
-
-.recent-calc-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.recent-calc-icon {
-    width: 50px;
-    height: 50px;
-    background: var(--bg-secondary);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-
-.recent-calc-details h4 {
-    font-size: 1rem;
-    margin-bottom: 5px;
-}
-
-.recent-calc-time {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-secondary);
-}
-
-.empty-state i {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    opacity: 0.3;
-}
-
-/* CTA Section */
-.cta-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 60px 20px;
-    text-align: center;
-    color: white;
-    margin: 40px 0;
-}
-
-.cta-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 15px;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 20px;
+    gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 30px;
 }
 
-.btn {
-    padding: 15px 35px;
+.btn-hero {
+    padding: 1.25rem 2.5rem;
     border-radius: 50px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.125rem;
     text-decoration: none;
-    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
 }
 
 .btn-primary {
@@ -446,790 +488,336 @@ include 'includes/header.php';
 }
 
 .btn-primary:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(255,255,255,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
 }
 
-.btn-outline {
-    background: transparent;
-    border: 2px solid white;
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-4px);
+}
+
+.hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    animation: bounce 2s infinite;
+}
+
+.hero-scroll i {
+    font-size: 2rem;
     color: white;
 }
 
-.btn-outline:hover {
+@keyframes bounce {
+    0%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    50% {
+        transform: translateX(-50%) translateY(-20px);
+    }
+}
+
+/* Categories Section */
+.categories-section {
+    padding: 6rem 0;
+    background: #f8f9fa;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-header h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.section-header p {
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.category-card {
     background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid transparent;
+}
+
+.category-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.category-card a {
+    display: block;
+    padding: 2.5rem;
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-icon-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 2rem;
+}
+
+.category-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: white;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .category-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.category-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%;
+    height: 120%;
+    background: inherit;
+    border-radius: 25px;
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-glow {
+    opacity: 0.5;
+}
+
+.category-card h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.category-card p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.category-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.category-count {
+    font-size: 0.875rem;
+    font-weight: 600;
     color: #667eea;
 }
 
-/* Responsive Design */
+.category-arrow {
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #667eea;
+    transition: all 0.3s ease;
+}
+
+.category-card:hover .category-arrow {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateX(5px);
+}
+
+/* Features Section */
+.features-section {
+    padding: 6rem 0;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background: white;
+    padding: 3rem 2rem;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2.5rem;
+    color: white;
+}
+
+.feature-card h3 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+}
+
+.feature-card p {
+    color: #6c757d;
+    line-height: 1.8;
+}
+
+.view-all-wrapper {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.btn-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 2.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.125rem;
+    transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
     .hero-title {
-        font-size: 2rem;
-    }
-    
-    .hero-subtitle {
-        font-size: 1rem;
+        font-size: 2.5rem;
     }
     
     .hero-stats {
-        gap: 20px;
+        gap: 2rem;
     }
     
-    .hero-stat-number {
-        font-size: 1.8rem;
+    .stat-icon {
+        width: 60px;
+        height: 60px;
     }
     
-    .section-title {
-        font-size: 1.8rem;
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 2rem;
     }
     
     .categories-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-    }
-    
-    .calculators-grid {
         grid-template-columns: 1fr;
     }
-    
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Animation Classes */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in-up {
-    animation: fadeInUp 0.6s ease-out;
-}
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 20px;
 }
 </style>
 
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="hero-content fade-in-up">
-        <h1 class="hero-title">Calculator Hub - 300+ Free Online Calculators</h1>
-        <p class="hero-subtitle">
-            Fast, accurate, and easy-to-use calculators for math, finance, health, conversions, and more. 
-            All tools are 100% free with no registration required.
-        </p>
-        
-        <div class="hero-search">
-            <form action="/search.php" method="GET" class="hero-search-form">
-                <input 
-                    type="search" 
-                    name="q" 
-                    class="hero-search-input" 
-                    placeholder="Search for any calculator... (e.g., BMI, Loan, Temperature)" 
-                    required
-                    aria-label="Search calculators"
-                >
-                <button type="submit" class="hero-search-button">
-                    <i class="fas fa-search"></i> Search
-                </button>
-            </form>
-        </div>
-        
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <span class="hero-stat-number">300+</span>
-                <span class="hero-stat-label">Calculators</span>
-            </div>
-            <div class="hero-stat">
-                <span class="hero-stat-number">14</span>
-                <span class="hero-stat-label">Categories</span>
-            </div>
-            <div class="hero-stat">
-                <span class="hero-stat-number">1M+</span>
-                <span class="hero-stat-label">Monthly Users</span>
-            </div>
-            <div class="hero-stat">
-                <span class="hero-stat-number">100%</span>
-                <span class="hero-stat-label">Free</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Categories Section -->
-<section class="categories-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Browse by Category</h2>
-            <p class="section-subtitle">Explore our comprehensive collection of calculators organized into 14 categories</p>
-        </div>
-        
-        <div class="categories-grid">
-            <?php
-            $categories = [
-                [
-                    'name' => 'Math Calculators',
-                    'icon' => '🔢',
-                    'count' => '25+',
-                    'slug' => 'math',
-                    'description' => 'Basic, scientific, and advanced math tools'
-                ],
-                [
-                    'name' => 'Financial Calculators',
-                    'icon' => '💰',
-                    'count' => '30+',
-                    'slug' => 'finance',
-                    'description' => 'Loans, investments, taxes, and budgeting'
-                ],
-                [
-                    'name' => 'Health & Fitness',
-                    'icon' => '🏥',
-                    'count' => '20+',
-                    'slug' => 'health',
-                    'description' => 'BMI, calories, pregnancy, and wellness'
-                ],
-                [
-                    'name' => 'Conversion Tools',
-                    'icon' => '🔄',
-                    'count' => '40+',
-                    'slug' => 'conversion',
-                    'description' => 'Units, currency, temperature, and more'
-                ],
-                [
-                    'name' => 'Date & Time',
-                    'icon' => '📅',
-                    'count' => '15+',
-                    'slug' => 'date',
-                    'description' => 'Age, duration, and date calculations'
-                ],
-                [
-                    'name' => 'Construction',
-                    'icon' => '🏗️',
-                    'count' => '18+',
-                    'slug' => 'construction',
-                    'description' => 'Building materials and measurements'
-                ],
-                [
-                    'name' => 'Statistics',
-                    'icon' => '📊',
-                    'count' => '22+',
-                    'slug' => 'statistics',
-                    'description' => 'Statistical analysis and probability'
-                ],
-                [
-                    'name' => 'Automotive',
-                    'icon' => '🚗',
-                    'count' => '12+',
-                    'slug' => 'automotive',
-                    'description' => 'Fuel, MPG, and vehicle calculations'
-                ],
-                [
-                    'name' => 'Education',
-                    'icon' => '🎓',
-                    'count' => '16+',
-                    'slug' => 'education',
-                    'description' => 'GPA, grades, and academic tools'
-                ],
-                [
-                    'name' => 'Science',
-                    'icon' => '🔬',
-                    'count' => '24+',
-                    'slug' => 'science',
-                    'description' => 'Physics, chemistry, and biology'
-                ],
-                [
-                    'name' => 'Cooking',
-                    'icon' => '🍳',
-                    'count' => '14+',
-                    'slug' => 'cooking',
-                    'description' => 'Recipe conversion and nutrition'
-                ],
-                [
-                    'name' => 'Engineering',
-                    'icon' => '⚡',
-                    'count' => '20+',
-                    'slug' => 'engineering',
-                    'description' => 'Electrical, mechanical, and civil'
-                ],
-                [
-                    'name' => 'Business',
-                    'icon' => '💼',
-                    'count' => '18+',
-                    'slug' => 'business',
-                    'description' => 'ROI, profit margins, and analytics'
-                ],
-                [
-                    'name' => 'Other Tools',
-                    'icon' => '🛠️',
-                    'count' => '26+',
-                    'slug' => 'other',
-                    'description' => 'Miscellaneous helpful tools'
-                ]
-            ];
-            
-            foreach ($categories as $category):
-            ?>
-            <a href="/category/<?php echo $category['slug']; ?>" class="category-card">
-                <span class="category-icon"><?php echo $category['icon']; ?></span>
-                <h3 class="category-name"><?php echo htmlspecialchars($category['name']); ?></h3>
-                <div class="category-count"><?php echo $category['count']; ?> calculators</div>
-                <p class="category-description"><?php echo htmlspecialchars($category['description']); ?></p>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
-<!-- Horizontal Ad #1 -->
-<div class="container">
-    <?php display_horizontal_ad(1, 'my-5'); ?>
-</div>
-
-<!-- Popular Calculators Section -->
-<section class="popular-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Most Popular Calculators</h2>
-            <p class="section-subtitle">Quick access to our most frequently used tools</p>
-        </div>
-        
-        <div class="calculators-grid">
-            <?php
-            // Get popular calculators from database
-            $popular_calculators = get_popular_calculators(10);
-            
-            // Fallback data if database is empty
-            if (empty($popular_calculators)) {
-                $popular_calculators = [
-                    ['name' => 'BMI Calculator', 'slug' => 'bmi', 'icon' => 'fa-weight', 'category' => 'Health', 'uses' => 125000],
-                    ['name' => 'Loan Calculator', 'slug' => 'loan', 'icon' => 'fa-money-bill-wave', 'category' => 'Finance', 'uses' => 98000],
-                    ['name' => 'Percentage Calculator', 'slug' => 'percentage', 'icon' => 'fa-percent', 'category' => 'Math', 'uses' => 87000],
-                    ['name' => 'Age Calculator', 'slug' => 'age', 'icon' => 'fa-birthday-cake', 'category' => 'Date & Time', 'uses' => 76000],
-                    ['name' => 'Currency Converter', 'slug' => 'currency', 'icon' => 'fa-coins', 'category' => 'Conversion', 'uses' => 71000],
-                    ['name' => 'Calorie Calculator', 'slug' => 'calorie', 'icon' => 'fa-fire', 'category' => 'Health', 'uses' => 68000],
-                    ['name' => 'Mortgage Calculator', 'slug' => 'mortgage', 'icon' => 'fa-home', 'category' => 'Finance', 'uses' => 59000],
-                    ['name' => 'GPA Calculator', 'slug' => 'gpa', 'icon' => 'fa-graduation-cap', 'category' => 'Education', 'uses' => 52000],
-                    ['name' => 'Temperature Converter', 'slug' => 'temperature', 'icon' => 'fa-thermometer-half', 'category' => 'Conversion', 'uses' => 48000],
-                    ['name' => 'Tax Calculator', 'slug' => 'tax', 'icon' => 'fa-file-invoice-dollar', 'category' => 'Finance', 'uses' => 45000]
-                ];
-            }
-            
-            foreach ($popular_calculators as $calc):
-            ?>
-            <a href="/calculator/<?php echo htmlspecialchars($calc['slug']); ?>" class="calculator-card">
-                <div class="calculator-icon-box">
-                    <i class="fas <?php echo htmlspecialchars($calc['icon']); ?>"></i>
-                </div>
-                <div class="calculator-details">
-                    <h3><?php echo htmlspecialchars($calc['name']); ?></h3>
-                    <div class="calculator-meta">
-                        <span>
-                            <i class="fas fa-folder"></i>
-                            <?php echo htmlspecialchars($calc['category']); ?>
-                        </span>
-                        <span>
-                            <i class="fas fa-users"></i>
-                            <?php echo format_number_short($calc['uses']); ?> uses
-                        </span>
-                    </div>
-                </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-
-<!-- Features Section -->
-<section class="features-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Why Choose Calculator Hub?</h2>
-            <p class="section-subtitle">Trusted by millions for accurate and reliable calculations</p>
-        </div>
-        
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3 class="feature-title">Lightning Fast</h3>
-                <p class="feature-description">
-                    Get instant results with our optimized calculators. No waiting, no delays.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <h3 class="feature-title">100% Accurate</h3>
-                <p class="feature-description">
-                    Verified formulas and algorithms ensure precision in every calculation.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h3 class="feature-title">Private & Secure</h3>
-                <p class="feature-description">
-                    Your data stays on your device. We don't store any calculation data.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3 class="feature-title">Mobile Friendly</h3>
-                <p class="feature-description">
-                    Responsive design works perfectly on all devices - phone, tablet, or desktop.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-gift"></i>
-                </div>
-                <h3 class="feature-title">Always Free</h3>
-                <p class="feature-description">
-                    No subscriptions, no hidden fees. All calculators are completely free to use.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3 class="feature-title">Regular Updates</h3>
-                <p class="feature-description">
-                    New calculators added weekly based on user requests and trending needs.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Recent Calculations Section (Only for logged-in or session users) -->
-<?php
-$recent_calcs = isset($_SESSION['recent_calculations']) ? $_SESSION['recent_calculations'] : [];
-if (!empty($recent_calcs) || isset($_SESSION['user_id'])):
-?>
-<section class="recent-section">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Your Recent Calculations</h2>
-            <p class="section-subtitle">Quick access to your calculation history</p>
-        </div>
-        
-        <div class="recent-list">
-            <?php
-            if (!empty($recent_calcs)):
-                foreach (array_slice($recent_calcs, 0, 5) as $calc):
-            ?>
-            <div class="recent-calculation">
-                <div class="recent-calc-info">
-                    <div class="recent-calc-icon">
-                        <i class="fas <?php echo htmlspecialchars($calc['icon']); ?>"></i>
-                    </div>
-                    <div class="recent-calc-details">
-                        <h4><?php echo htmlspecialchars($calc['name']); ?></h4>
-                        <span class="recent-calc-time">
-                            <i class="fas fa-clock"></i> <?php echo time_elapsed($calc['timestamp']); ?>
-                        </span>
-                    </div>
-                </div>
-                <a href="/calculator/<?php echo htmlspecialchars($calc['slug']); ?>" class="btn btn-primary" style="font-size: 0.9rem; padding: 8px 20px;">
-                    Use Again
-                </a>
-            </div>
-            <?php 
-                endforeach;
-            else:
-            ?>
-            <div class="empty-state">
-                <i class="fas fa-calculator"></i>
-                <h3>No Recent Calculations</h3>
-                <p>Start using our calculators to see your history here</p>
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
-
-<!-- Horizontal Ad #2 -->
-<div class="container">
-    <?php display_horizontal_ad(2, 'my-5'); ?>
-</div>
-
-<!-- CTA Section -->
-<section class="cta-section">
-    <div class="container">
-        <h2 class="cta-title">Ready to Get Started?</h2>
-        <p style="font-size: 1.1rem; opacity: 0.95;">Join millions of users who trust Calculator Hub for their daily calculations</p>
-        
-        <div class="cta-buttons">
-            <a href="/categories.php" class="btn btn-primary">
-                <i class="fas fa-th"></i> Browse All Categories
-            </a>
-            <a href="/about.php" class="btn btn-outline">
-                <i class="fas fa-info-circle"></i> Learn More
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials Section -->
-<section class="features-section" style="padding: 60px 20px;">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">What Our Users Say</h2>
-            <p class="section-subtitle">Trusted by professionals and students worldwide</p>
-        </div>
-        
-        <div class="features-grid">
-            <div class="feature-card">
-                <div style="color: #ffc107; font-size: 1.5rem; margin-bottom: 15px;">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p style="font-style: italic; margin-bottom: 15px; color: var(--text-secondary);">
-                    "The most comprehensive collection of calculators I've found online. Use it daily for work!"
-                </p>
-                <strong>Sarah Johnson</strong>
-                <div style="color: var(--text-secondary); font-size: 0.9rem;">Financial Analyst</div>
-            </div>
-            
-            <div class="feature-card">
-                <div style="color: #ffc107; font-size: 1.5rem; margin-bottom: 15px;">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p style="font-style: italic; margin-bottom: 15px; color: var(--text-secondary);">
-                    "Incredibly accurate and easy to use. Saves me hours of manual calculations every week."
-                </p>
-                <strong>Michael Chen</strong>
-                <div style="color: var(--text-secondary); font-size: 0.9rem;">Civil Engineer</div>
-            </div>
-            
-            <div class="feature-card">
-                <div style="color: #ffc107; font-size: 1.5rem; margin-bottom: 15px;">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </div>
-                <p style="font-style: italic; margin-bottom: 15px; color: var(--text-secondary);">
-                    "Perfect for students! All the calculators I need for my coursework in one place."
-                </p>
-                <strong>Emily Rodriguez</strong>
-                <div style="color: var(--text-secondary); font-size: 0.9rem;">University Student</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Trust Indicators -->
-<section style="padding: 40px 20px; background: var(--bg-secondary);">
-    <div class="container">
-        <div style="display: flex; justify-content: center; align-items: center; gap: 50px; flex-wrap: wrap; opacity: 0.6;">
-            <div style="text-align: center;">
-                <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <div style="margin-top: 10px; font-weight: 600;">SSL Secured</div>
-            </div>
-            <div style="text-align: center;">
-                <i class="fas fa-check-circle" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <div style="margin-top: 10px; font-weight: 600;">Verified Formulas</div>
-            </div>
-            <div style="text-align: center;">
-                <i class="fas fa-users" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <div style="margin-top: 10px; font-weight: 600;">1M+ Active Users</div>
-            </div>
-            <div style="text-align: center;">
-                <i class="fas fa-clock" style="font-size: 2rem; color: var(--primary-color);"></i>
-                <div style="margin-top: 10px; font-weight: 600;">24/7 Available</div>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- AOS Animation Library -->
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 <script>
-// Homepage Interactive Features
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Animate elements on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-    
-    // Observe all category cards, calculator cards, and feature cards
-    document.querySelectorAll('.category-card, .calculator-card, .feature-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(card);
-    });
-    
-    // Hero search input focus effect
-    const heroSearchInput = document.querySelector('.hero-search-input');
-    if (heroSearchInput) {
-        heroSearchInput.addEventListener('focus', function() {
-            this.parentElement.style.transform = 'scale(1.02)';
-            this.parentElement.style.transition = 'transform 0.3s ease';
-        });
-        
-        heroSearchInput.addEventListener('blur', function() {
-            this.parentElement.style.transform = 'scale(1)';
-        });
-    }
-    
-    // Category card hover effect - show more info
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            const description = this.querySelector('.category-description');
-            if (description) {
-                description.style.maxHeight = '100px';
-                description.style.opacity = '1';
-            }
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            const description = this.querySelector('.category-description');
-            if (description) {
-                description.style.maxHeight = '0';
-                description.style.opacity = '0';
-            }
-        });
-    });
-    
-    // Add pulse animation to popular calculators
-    const calculatorCards = document.querySelectorAll('.calculator-card');
-    calculatorCards.forEach((card, index) => {
-        setTimeout(() => {
-            card.style.animation = 'fadeInUp 0.5s ease-out forwards';
-            card.style.animationDelay = (index * 0.1) + 's';
-        }, 100);
-    });
-    
-    // Stats counter animation
-    function animateCounter(element, target, duration = 2000) {
-        const start = 0;
-        const increment = target / (duration / 16);
-        let current = start;
-        
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                element.textContent = target;
-                clearInterval(timer);
-            } else {
-                element.textContent = Math.floor(current);
-            }
-        }, 16);
-    }
-    
-    // Animate hero stats when visible
-    const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const statNumber = entry.target.querySelector('.hero-stat-number');
-                const targetText = statNumber.textContent;
-                
-                // Only animate numeric values
-                if (targetText.includes('+')) {
-                    const target = parseInt(targetText.replace('+', ''));
-                    statNumber.textContent = '0+';
-                    
-                    let current = 0;
-                    const increment = target / 50;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= target) {
-                            statNumber.textContent = targetText;
-                            clearInterval(timer);
-                        } else {
-                            statNumber.textContent = Math.floor(current) + '+';
-                        }
-                    }, 30);
-                }
-                
-                statsObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-    
-    document.querySelectorAll('.hero-stat').forEach(stat => {
-        statsObserver.observe(stat);
-    });
-    
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // Track popular calculator clicks
-    document.querySelectorAll('.calculator-card').forEach(card => {
-        card.addEventListener('click', function(e) {
-            const calculatorName = this.querySelector('h3').textContent;
-            
-            // Send analytics event (if analytics is configured)
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'calculator_click', {
-                    'calculator_name': calculatorName,
-                    'location': 'homepage_popular'
-                });
-            }
-        });
-    });
-    
-    // Track category clicks
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('click', function(e) {
-            const categoryName = this.querySelector('.category-name').textContent;
-            
-            // Send analytics event
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'category_click', {
-                    'category_name': categoryName,
-                    'location': 'homepage_grid'
-                });
-            }
-        });
-    });
-    
-    // Show/hide recent calculations section based on data
-    const recentSection = document.querySelector('.recent-section');
-    if (recentSection) {
-        const recentCalcs = recentSection.querySelectorAll('.recent-calculation');
-        if (recentCalcs.length === 0) {
-            recentSection.style.display = 'none';
-        }
-    }
-    
-    // Add loading state to search form
-    const heroSearchForm = document.querySelector('.hero-search-form');
-    if (heroSearchForm) {
-        heroSearchForm.addEventListener('submit', function() {
-            const button = this.querySelector('.hero-search-button');
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-            button.disabled = true;
-        });
-    }
-    
-    // Initialize tooltips (if using a tooltip library)
-    const tooltipElements = document.querySelectorAll('[data-tooltip]');
-    tooltipElements.forEach(element => {
-        element.setAttribute('title', element.getAttribute('data-tooltip'));
-    });
-    
-    // Add ripple effect to buttons
-    document.querySelectorAll('.btn, .category-card, .calculator-card').forEach(element => {
-        element.addEventListener('click', function(e) {
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple');
-            
-            const rect = this.getBoundingClientRect();
-            const size = Math.max(rect.width, rect.height);
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-            
-            ripple.style.width = ripple.style.height = size + 'px';
-            ripple.style.left = x + 'px';
-            ripple.style.top = y + 'px';
-            
-            this.style.position = 'relative';
-            this.style.overflow = 'hidden';
-            this.appendChild(ripple);
-            
-            setTimeout(() => {
-                ripple.remove();
-            }, 600);
-        });
-    });
-    
-    // Log page view
-    if (typeof fetch !== 'undefined') {
-        fetch('/api/track-pageview.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                page: 'homepage',
-                timestamp: new Date().toISOString()
-            })
-        }).catch(err => console.log('Tracking error:', err));
-    }
+// Initialize AOS
+AOS.init({
+    duration: 800,
+    once: true,
+    offset: 100
 });
 
-// Add ripple effect styles
-const style = document.createElement('style');
-style.textContent = `
-    .ripple {
-        position: absolute;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
-        transform: scale(0);
-        animation: ripple-animation 0.6s ease-out;
-        pointer-events: none;
-    }
+// Counter animation
+document.querySelectorAll('.stat-number[data-count]').forEach(counter => {
+    const target = parseInt(counter.dataset.count);
+    const duration = 2000;
+    const step = target / (duration / 16);
+    let current = 0;
     
-    @keyframes ripple-animation {
-        to {
-            transform: scale(4);
-            opacity: 0;
+    const updateCounter = () => {
+        current += step;
+        if (current < target) {
+            counter.textContent = Math.floor(current);
+            requestAnimationFrame(updateCounter);
+        } else {
+            counter.textContent = target + '+';
         }
-    }
+    };
     
-    .category-description {
-        max-height: 0;
-        opacity: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease, opacity 0.3s ease;
-    }
-`;
-document.head.appendChild(style);
+    // Start animation when in view
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+            updateCounter();
+            observer.disconnect();
+        }
+    });
+    
+    observer.observe(counter);
+});
 </script>
 
-<?php
-// Include footer
-include 'includes/footer.php';
-?>
+<?php require_once 'includes/footer.php'; ?>

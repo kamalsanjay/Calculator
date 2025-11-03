@@ -1,1 +1,6 @@
-  
+# Error Log File
+# Format: [YYYY-MM-DD HH:MM:SS] LEVEL: Message
+
+[2025-01-15 10:30:45] ERROR: Database connection failed - Access denied for user 'root'@'localhost'
+[2025-01-15 10:35:12] WARNING: Slow query detected - Query took 3.5 seconds
+[2025-01-15 11:20:33] ERROR: File not found - /calculators/invalid-calculator.php

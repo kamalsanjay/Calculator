@@ -1,286 +1,299 @@
 <?php
 /**
- * Configuration File - Calculator Website
- * 
- * This file contains all database and application configurations
- * Uses environment-based configuration for security
- * 
- * @package Calculator
- * @version 1.0.0
- * @author Calculator Team
+ * Configuration File - Updated Version
+ * Database and application settings
  */
 
-// Enable strict types for type safety
-declare(strict_types=1);
-
-// Prevent direct access
-if (!defined('CALCULATOR_APP')) {
-    define('CALCULATOR_APP', true);
-}
-
-// Error reporting configuration (change to 0 in production)
+// Error Reporting (Disable in production)
 error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('log_errors', '1');
-ini_set('error_log', __DIR__ . '/logs/error.log');
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
 
-// Timezone configuration
-date_default_timezone_set('America/New_York');
-
-// Session configuration
-ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_secure', '1'); // Enable in production with HTTPS
-ini_set('session.cookie_samesite', 'Strict');
-ini_set('session.use_strict_mode', '1');
-
-// Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+// Create logs directory
+if (!is_dir(__DIR__ . '/logs')) {
+    @mkdir(__DIR__ . '/logs', 0755, true);
 }
+ini_set('error_log', __DIR__ . '/logs/php-errors.log');
 
-/**
- * ========================================
- * ENVIRONMENT CONFIGURATION
- * ========================================
- * Change this to 'production' when deploying
- */
-define('ENVIRONMENT', 'development'); // Options: 'development', 'production'
+// Database Configuration
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'calculator');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 
-/**
- * ========================================
- * DATABASE CONFIGURATION
- * ========================================
- */
-if (ENVIRONMENT === 'production') {
-    // Production database settings
-    define('DB_HOST', 'localhost');
-    define('DB_NAME', 'calculator_prod');
-    define('DB_USER', 'calculator_user');
-    define('DB_PASS', 'your_secure_password_here');
-    define('DB_CHARSET', 'utf8mb4');
-    
-    // Production settings
-    define('DISPLAY_ERRORS', false);
-    error_reporting(0);
-    ini_set('display_errors', '0');
-    
-} else {
-    // Development database settings
-    define('DB_HOST', 'localhost');
-    define('DB_NAME', 'calculator_dev');
-    define('DB_USER', 'root');
-    define('DB_PASS', '');
-    define('DB_CHARSET', 'utf8mb4');
-    
-    // Development settings
-    define('DISPLAY_ERRORS', true);
-}
-
-/**
- * ========================================
- * APPLICATION CONFIGURATION
- * ========================================
- */
-
-// Site information
+// Site Configuration
+define('SITE_URL', 'http://localhost/Calculator');
 define('SITE_NAME', 'Calculator');
-define('SITE_TITLE', 'Calculator - Free Online Calculators & Tools');
-define('SITE_DESCRIPTION', 'Free online calculator with 300+ tools for financial, health, math, conversion, and more. Fast, accurate, and easy to use calculators.');
-define('SITE_KEYWORDS', 'calculator, online calculator, free calculator, math calculator, financial calculator, conversion calculator');
-define('SITE_AUTHOR', 'Calculator Team');
-define('SITE_VERSION', '1.0.0');
+define('BASE_PATH', __DIR__);
 
-// URL configuration (change in production)
-define('BASE_URL', 'http://localhost/calculator/');
-define('SITE_URL', 'http://localhost/calculator/');
-define('ASSETS_URL', BASE_URL . 'assets/');
-define('CSS_URL', ASSETS_URL . 'css/');
-define('JS_URL', ASSETS_URL . 'js/');
-define('IMG_URL', ASSETS_URL . 'images/');
+// Security Keys
+define('JWT_SECRET', bin2hex(random_bytes(32)));
+define('ENCRYPTION_KEY', bin2hex(random_bytes(32)));
 
-// Directory paths
-define('ROOT_PATH', __DIR__ . '/');
-define('INCLUDES_PATH', ROOT_PATH . 'includes/');
-define('CALCULATORS_PATH', ROOT_PATH . 'calculators/');
-define('ADMIN_PATH', ROOT_PATH . 'admin/');
-define('API_PATH', ROOT_PATH . 'api/');
-define('LOGS_PATH', ROOT_PATH . 'logs/');
+// Email Configuration
+define('MAIL_FROM_ADDRESS', 'noreply@calculator.local');
+define('MAIL_FROM_NAME', 'Calculator');
+
+// Timezone
+date_default_timezone_set('UTC');
 
 /**
- * ========================================
- * SECURITY CONFIGURATION
- * ========================================
+ * Database Connection Class - Enhanced
  */
-
-// CSRF token configuration
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-define('CSRF_TOKEN', $_SESSION['csrf_token']);
-
-// Password hashing configuration
-define('PASSWORD_HASH_ALGO', PASSWORD_ARGON2ID);
-define('PASSWORD_HASH_OPTIONS', [
-    'memory_cost' => 65536,
-    'time_cost' => 4,
-    'threads' => 3
-]);
-
-// Maximum login attempts
-define('MAX_LOGIN_ATTEMPTS', 5);
-define('LOGIN_LOCKOUT_TIME', 900); // 15 minutes in seconds
-
-// File upload configuration
-define('MAX_FILE_SIZE', 5242880); // 5MB in bytes
-define('ALLOWED_FILE_TYPES', ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx']);
-
-/**
- * ========================================
- * EMAIL CONFIGURATION
- * ========================================
- */
-define('SMTP_HOST', 'smtp.gmail.com');
-define('SMTP_PORT', 587);
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');
-define('SMTP_FROM_EMAIL', 'noreply@calculator.com');
-define('SMTP_FROM_NAME', 'Calculator Team');
-
-// Admin email for notifications
-define('ADMIN_EMAIL', 'admin@calculator.com');
-
-/**
- * ========================================
- * PAGINATION CONFIGURATION
- * ========================================
- */
-define('ITEMS_PER_PAGE', 20);
-define('CALCULATORS_PER_PAGE', 24);
-define('SEARCH_RESULTS_PER_PAGE', 15);
-
-/**
- * ========================================
- * CACHE CONFIGURATION
- * ========================================
- */
-define('ENABLE_CACHE', true);
-define('CACHE_TIME', 3600); // 1 hour in seconds
-define('CACHE_PATH', ROOT_PATH . 'cache/');
-
-/**
- * ========================================
- * ADSENSE CONFIGURATION
- * ========================================
- */
-define('ENABLE_ADS', true);
-define('ADSENSE_CLIENT_ID', 'ca-pub-XXXXXXXXXXXXXXXX'); // Replace with your AdSense ID
-
-// Ad slot IDs (replace with your actual slot IDs)
-define('AD_VERTICAL_1', 'XXXXXXXXXX'); // Right sidebar top
-define('AD_VERTICAL_2', 'XXXXXXXXXX'); // Right sidebar bottom
-define('AD_HORIZONTAL_1', 'XXXXXXXXXX'); // After results
-define('AD_HORIZONTAL_2', 'XXXXXXXXXX'); // Before footer
-
-/**
- * ========================================
- * ANALYTICS CONFIGURATION
- * ========================================
- */
-define('ENABLE_ANALYTICS', true);
-define('GOOGLE_ANALYTICS_ID', 'G-XXXXXXXXXX'); // Replace with your GA4 ID
-
-/**
- * ========================================
- * API CONFIGURATION
- * ========================================
- */
-define('API_RATE_LIMIT', 100); // Requests per hour
-define('API_KEY_LENGTH', 32);
-
-/**
- * ========================================
- * CALCULATOR CATEGORIES
- * ========================================
- */
-define('CALCULATOR_CATEGORIES', [
-    'financial' => ['name' => 'Financial', 'icon' => '💰', 'count' => 58],
-    'health' => ['name' => 'Health & Fitness', 'icon' => '🏥', 'count' => 40],
-    'math' => ['name' => 'Math', 'icon' => '🔢', 'count' => 42],
-    'conversion' => ['name' => 'Conversion', 'icon' => '🔄', 'count' => 40],
-    'date-time' => ['name' => 'Date & Time', 'icon' => '📅', 'count' => 16],
-    'construction' => ['name' => 'Construction', 'icon' => '🏗️', 'count' => 18],
-    'electronics' => ['name' => 'Electronics', 'icon' => '⚡', 'count' => 12],
-    'automotive' => ['name' => 'Automotive', 'icon' => '🚗', 'count' => 11],
-    'education' => ['name' => 'Education', 'icon' => '🎓', 'count' => 10],
-    'utility' => ['name' => 'Utility', 'icon' => '🛠️', 'count' => 15],
-    'weather' => ['name' => 'Weather', 'icon' => '🌤️', 'count' => 9],
-    'cooking' => ['name' => 'Cooking', 'icon' => '🍳', 'count' => 9],
-    'gaming' => ['name' => 'Gaming', 'icon' => '🎮', 'count' => 8],
-    'sports' => ['name' => 'Sports', 'icon' => '⚽', 'count' => 8]
-]);
-
-/**
- * ========================================
- * DATABASE CONNECTION FUNCTION
- * ========================================
- */
-
-/**
- * Get PDO database connection
- * 
- * @return PDO Database connection object
- * @throws PDOException If connection fails
- */
-function getDBConnection(): PDO {
-    static $pdo = null;
+class Database {
+    private static $instance = null;
+    private $pdo;
     
-    if ($pdo === null) {
+    private function __construct() {
         try {
-            $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
-            
+            $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
             $options = [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-                PDO::ATTR_PERSISTENT         => false,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES " . DB_CHARSET
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::ATTR_PERSISTENT => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
             ];
-            
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-            
+            $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            // Log the error
-            error_log("Database Connection Error: " . $e->getMessage());
+            error_log('Database Connection Error: ' . $e->getMessage());
             
-            // Show user-friendly message
-            if (ENVIRONMENT === 'development') {
-                die("Database connection failed: " . $e->getMessage());
+            // Show user-friendly error in development
+            if (ini_get('display_errors')) {
+                die('<h1>Database Connection Error</h1><p>Could not connect to database. Please check your configuration.</p><p><strong>Error:</strong> ' . $e->getMessage() . '</p>');
             } else {
-                die("We're experiencing technical difficulties. Please try again later.");
+                die('Database connection failed. Please contact the administrator.');
             }
         }
     }
     
-    return $pdo;
+    /**
+     * Get singleton instance
+     */
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Get PDO instance
+     */
+    public function getPDO() {
+        return $this->pdo;
+    }
+    
+    /**
+     * Prepare statement
+     */
+    public function prepare($sql) {
+        return $this->pdo->prepare($sql);
+    }
+    
+    /**
+     * Execute query with parameters
+     */
+    public function query($sql, $params = []) {
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            error_log('Query Error: ' . $e->getMessage() . ' | SQL: ' . $sql);
+            throw $e;
+        }
+    }
+    
+    /**
+     * Fetch all rows
+     */
+    public function fetchAll($sql, $params = []) {
+        try {
+            return $this->query($sql, $params)->fetchAll();
+        } catch (PDOException $e) {
+            error_log('fetchAll Error: ' . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Fetch one row
+     */
+    public function fetchOne($sql, $params = []) {
+        try {
+            return $this->query($sql, $params)->fetch();
+        } catch (PDOException $e) {
+            error_log('fetchOne Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Fetch single column value
+     */
+    public function fetchColumn($sql, $params = []) {
+        try {
+            return $this->query($sql, $params)->fetchColumn();
+        } catch (PDOException $e) {
+            error_log('fetchColumn Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Execute SQL statement (UPDATE, DELETE, INSERT without returning data)
+     * This is the method that was missing!
+     */
+    public function execute($sql, $params = []) {
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            return $stmt->execute($params);
+        } catch (PDOException $e) {
+            error_log('Execute Error: ' . $e->getMessage() . ' | SQL: ' . $sql);
+            throw $e;
+        }
+    }
+    
+    /**
+     * Execute raw SQL (use with caution)
+     */
+    public function exec($sql) {
+        try {
+            return $this->pdo->exec($sql);
+        } catch (PDOException $e) {
+            error_log('Exec Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Get last insert ID
+     */
+    public function lastInsertId() {
+        return $this->pdo->lastInsertId();
+    }
+    
+    /**
+     * Begin transaction
+     */
+    public function beginTransaction() {
+        return $this->pdo->beginTransaction();
+    }
+    
+    /**
+     * Commit transaction
+     */
+    public function commit() {
+        return $this->pdo->commit();
+    }
+    
+    /**
+     * Rollback transaction
+     */
+    public function rollBack() {
+        return $this->pdo->rollBack();
+    }
+    
+    /**
+     * Check if in transaction
+     */
+    public function inTransaction() {
+        return $this->pdo->inTransaction();
+    }
+    
+    /**
+     * Insert data into table
+     * 
+     * @param string $table Table name
+     * @param array $data Associative array of column => value
+     * @return int Last insert ID
+     */
+    public function insert($table, $data) {
+        $columns = implode(', ', array_keys($data));
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
+        
+        $this->execute($sql, array_values($data));
+        return $this->lastInsertId();
+    }
+    
+    /**
+     * Update data in table
+     * 
+     * @param string $table Table name
+     * @param array $data Associative array of column => value
+     * @param string $where WHERE clause
+     * @param array $whereParams Parameters for WHERE clause
+     * @return bool Success
+     */
+    public function update($table, $data, $where, $whereParams = []) {
+        $setParts = [];
+        foreach (array_keys($data) as $column) {
+            $setParts[] = "{$column} = ?";
+        }
+        $setClause = implode(', ', $setParts);
+        
+        $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
+        $params = array_merge(array_values($data), $whereParams);
+        
+        return $this->execute($sql, $params);
+    }
+    
+    /**
+     * Delete from table
+     * 
+     * @param string $table Table name
+     * @param string $where WHERE clause
+     * @param array $params Parameters for WHERE clause
+     * @return bool Success
+     */
+    public function delete($table, $where, $params = []) {
+        $sql = "DELETE FROM {$table} WHERE {$where}";
+        return $this->execute($sql, $params);
+    }
+    
+    /**
+     * Check if record exists
+     * 
+     * @param string $table Table name
+     * @param string $where WHERE clause
+     * @param array $params Parameters
+     * @return bool Exists
+     */
+    public function exists($table, $where, $params = []) {
+        $sql = "SELECT COUNT(*) FROM {$table} WHERE {$where}";
+        return (int) $this->fetchColumn($sql, $params) > 0;
+    }
+    
+    /**
+     * Get table row count
+     * 
+     * @param string $table Table name
+     * @param string $where Optional WHERE clause
+     * @param array $params Optional parameters
+     * @return int Count
+     */
+    public function count($table, $where = '', $params = []) {
+        $sql = "SELECT COUNT(*) FROM {$table}";
+        if ($where) {
+            $sql .= " WHERE {$where}";
+        }
+        return (int) $this->fetchColumn($sql, $params);
+    }
 }
 
 /**
- * ========================================
- * UTILITY FUNCTIONS
- * ========================================
+ * Helper Functions
  */
 
 /**
  * Sanitize input data
- * 
- * @param mixed $data Input data to sanitize
- * @return mixed Sanitized data
  */
-function sanitizeInput($data) {
+function sanitize_input($data) {
     if (is_array($data)) {
-        return array_map('sanitizeInput', $data);
+        return array_map('sanitize_input', $data);
     }
-    
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
@@ -288,76 +301,181 @@ function sanitizeInput($data) {
 }
 
 /**
- * Validate CSRF token
- * 
- * @param string $token Token to validate
- * @return bool True if valid, false otherwise
- */
-function validateCSRFToken(string $token): bool {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
-
-/**
- * Generate new CSRF token
- * 
- * @return string New CSRF token
- */
-function generateCSRFToken(): string {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    return $_SESSION['csrf_token'];
-}
-
-/**
  * Redirect to URL
- * 
- * @param string $url URL to redirect to
- * @return void
  */
-function redirect(string $url): void {
-    header("Location: " . $url);
+function redirect($url, $statusCode = 302) {
+    header('Location: ' . $url, true, $statusCode);
     exit;
 }
 
 /**
- * Check if user is logged in
- * 
- * @return bool True if logged in, false otherwise
+ * Get current URL
  */
-function isLoggedIn(): bool {
-    return isset($_SESSION['user_id']) && isset($_SESSION['user_email']);
+function current_url() {
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    return $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+}
+
+/**
+ * Check if user is logged in
+ */
+function is_logged_in() {
+    return isset($_SESSION['user_id']);
 }
 
 /**
  * Check if user is admin
- * 
- * @return bool True if admin, false otherwise
  */
-function isAdmin(): bool {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+function is_admin() {
+    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 }
 
 /**
- * ========================================
- * AUTO-LOAD REQUIRED FILES
- * ========================================
+ * Generate CSRF token
  */
+function generate_csrf_token() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
 
-// Create necessary directories if they don't exist
-$directories = [LOGS_PATH, CACHE_PATH];
-foreach ($directories as $dir) {
-    if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+/**
+ * Verify CSRF token
+ */
+function verify_csrf_token($token) {
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+/**
+ * Format number with commas
+ */
+function format_number($number, $decimals = 0) {
+    return number_format($number, $decimals, '.', ',');
+}
+
+/**
+ * Get time ago format
+ */
+function time_ago($datetime) {
+    $timestamp = strtotime($datetime);
+    $difference = time() - $timestamp;
+    
+    if ($difference < 60) {
+        return $difference . ' seconds ago';
+    } elseif ($difference < 3600) {
+        return floor($difference / 60) . ' minutes ago';
+    } elseif ($difference < 86400) {
+        return floor($difference / 3600) . ' hours ago';
+    } elseif ($difference < 604800) {
+        return floor($difference / 86400) . ' days ago';
+    } else {
+        return date('M j, Y', $timestamp);
     }
 }
 
-// Load common functions if file exists
-if (file_exists(INCLUDES_PATH . 'functions.php')) {
-    require_once INCLUDES_PATH . 'functions.php';
+/**
+ * Generate slug from text
+ */
+function generate_slug($text) {
+    $text = strtolower($text);
+    $text = preg_replace('/[^a-z0-9\s-]/', '', $text);
+    $text = preg_replace('/[\s-]+/', '-', $text);
+    $text = trim($text, '-');
+    return $text;
 }
 
 /**
- * ========================================
- * CONFIGURATION COMPLETE
- * ========================================
- * All configuration values are now available throughout the application
- */   
+ * Truncate text
+ */
+function truncate($text, $length = 100, $suffix = '...') {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    return substr($text, 0, $length) . $suffix;
+}
+
+/**
+ * Load settings from database
+ */
+function get_setting($key, $default = null) {
+    static $settings = null;
+    
+    if ($settings === null) {
+        try {
+            $db = Database::getInstance();
+            $results = $db->fetchAll("SELECT setting_key, setting_value FROM site_settings");
+            $settings = [];
+            foreach ($results as $row) {
+                $settings[$row['setting_key']] = $row['setting_value'];
+            }
+        } catch (Exception $e) {
+            error_log('Error loading settings: ' . $e->getMessage());
+            $settings = [];
+        }
+    }
+    
+    return $settings[$key] ?? $default;
+}
+
+/**
+ * Update setting in database
+ */
+function update_setting($key, $value) {
+    try {
+        $db = Database::getInstance();
+        return $db->execute(
+            "UPDATE site_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = ?",
+            [$value, $key]
+        );
+    } catch (Exception $e) {
+        error_log('Error updating setting: ' . $e->getMessage());
+        return false;
+    }
+}
+
+/**
+ * Log activity
+ */
+function log_activity($action, $description = '', $user_id = null) {
+    try {
+        $db = Database::getInstance();
+        $user_id = $user_id ?? ($_SESSION['user_id'] ?? null);
+        $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+        
+        $db->execute(
+            "INSERT INTO activity_log (user_id, action, description, ip_address, created_at) VALUES (?, ?, ?, ?, NOW())",
+            [$user_id, $action, $description, $ip_address]
+        );
+    } catch (Exception $e) {
+        error_log('Error logging activity: ' . $e->getMessage());
+    }
+}
+
+// Start session with secure settings
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure' => false, // Set to true in production with HTTPS
+        'use_strict_mode' => true,
+        'use_only_cookies' => true,
+        'cookie_samesite' => 'Strict'
+    ]);
+    
+    // Generate CSRF token if not exists
+    generate_csrf_token();
+}
+
+// Auto-load additional functions
+if (file_exists(__DIR__ . '/includes/functions.php')) {
+    require_once __DIR__ . '/includes/functions.php';
+}
+
+// Set default timezone from settings if available
+try {
+    $timezone = get_setting('timezone', 'UTC');
+    date_default_timezone_set($timezone);
+} catch (Exception $e) {
+    // Use default UTC if settings not available
+    date_default_timezone_set('UTC');
+}

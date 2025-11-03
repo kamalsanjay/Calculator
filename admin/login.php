@@ -1,130 +1,60 @@
 <?php
 /**
  * Admin Login Page
- * Secure authentication with session management and CSRF protection
  */
 
-session_start();
-require_once '../config/database.php';
-require_once '../includes/security.php';
+define('ADMIN_PANEL', true);
+
+require_once __DIR__ . '/../config.php';
 
 // Redirect if already logged in
-if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    header('Location: index.php');
-    exit();
+if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ' . SITE_URL . '/admin/index.php');
+    exit;
 }
 
 $error = '';
-$success = '';
 
-// Generate CSRF token
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
-
-// Handle login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verify CSRF token
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        $error = 'Invalid request. Please try again.';
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
+    
+    if (empty($username) || empty($password)) {
+        $error = 'Please enter both username and password';
     } else {
-        $username = trim($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
-        $remember = isset($_POST['remember_me']);
-
-        if (empty($username) || empty($password)) {
-            $error = 'Please enter both username and password.';
-        } else {
-            // Check login attempts
-            if (checkLoginAttempts($username)) {
-                $error = 'Too many failed login attempts. Please try again in 15 minutes.';
-            } else {
-                // Authenticate user
-                $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE username = ? AND status = 'active' LIMIT 1");
-                $stmt->execute([$username]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($user && password_verify($password, $user['password'])) {
-                    // Successful login
-                    clearLoginAttempts($username);
-                    
-                    // Regenerate session ID
-                    session_regenerate_id(true);
-                    
-                    // Set session variables
-                    $_SESSION['admin_logged_in'] = true;
-                    $_SESSION['admin_id'] = $user['id'];
-                    $_SESSION['admin_username'] = $user['username'];
-                    $_SESSION['admin_role'] = $user['role'];
-                    $_SESSION['admin_email'] = $user['email'];
-                    $_SESSION['login_time'] = time();
-                    $_SESSION['last_activity'] = time();
-
-                    // Update last login
-                    $updateStmt = $pdo->prepare("UPDATE admin_users SET last_login = NOW(), login_ip = ? WHERE id = ?");
-                    $updateStmt->execute([getClientIP(), $user['id']]);
-
-                    // Log activity
-                    logActivity($user['id'], 'login', 'User logged in successfully');
-
-                    // Handle remember me
-                    if ($remember) {
-                        $token = bin2hex(random_bytes(32));
-                        $expiry = time() + (30 * 24 * 60 * 60); // 30 days
-                        
-                        // Store token in database
-                        $tokenStmt = $pdo->prepare("INSERT INTO remember_tokens (user_id, token, expires_at) VALUES (?, ?, FROM_UNIXTIME(?))");
-                        $tokenStmt->execute([$user['id'], hash('sha256', $token), $expiry]);
-                        
-                        // Set cookie
-                        setcookie('remember_token', $token, $expiry, '/', '', true, true);
-                    }
-
-                    header('Location: index.php');
-                    exit();
+        try {
+            $db = Database::getInstance();
+            
+            $stmt = $db->prepare("
+                SELECT id, username, email, password, role, is_active 
+                FROM users 
+                WHERE (username = ? OR email = ?) AND role = 'admin'
+            ");
+            $stmt->execute([$username, $username]);
+            $user = $stmt->fetch();
+            
+            if ($user && password_verify($password, $user['password'])) {
+                if (!$user['is_active']) {
+                    $error = 'Account is disabled';
                 } else {
-                    // Failed login
-                    recordLoginAttempt($username);
-                    $error = 'Invalid username or password.';
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['username'];
+                    $_SESSION['email'] = $user['email'];
+                    $_SESSION['role'] = $user['role'];
                     
-                    // Log failed attempt
-                    logActivity(0, 'failed_login', "Failed login attempt for username: {$username}");
+                    $stmt = $db->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                    $stmt->execute([$user['id']]);
+                    
+                    header('Location: ' . SITE_URL . '/admin/index.php');
+                    exit;
                 }
+            } else {
+                $error = 'Invalid username or password';
             }
+        } catch (Exception $e) {
+            error_log('Login error: ' . $e->getMessage());
+            $error = 'Login failed. Please try again.';
         }
-    }
-}
-
-// Check remember me cookie
-if (isset($_COOKIE['remember_token']) && !isset($_SESSION['admin_logged_in'])) {
-    $token = $_COOKIE['remember_token'];
-    $hashedToken = hash('sha256', $token);
-    
-    $stmt = $pdo->prepare("
-        SELECT u.* FROM admin_users u
-        INNER JOIN remember_tokens t ON u.id = t.user_id
-        WHERE t.token = ? AND t.expires_at > NOW() AND u.status = 'active'
-        LIMIT 1
-    ");
-    $stmt->execute([$hashedToken]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($user) {
-        // Auto login
-        session_regenerate_id(true);
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_id'] = $user['id'];
-        $_SESSION['admin_username'] = $user['username'];
-        $_SESSION['admin_role'] = $user['role'];
-        $_SESSION['admin_email'] = $user['email'];
-        $_SESSION['login_time'] = time();
-        $_SESSION['last_activity'] = time();
-        
-        header('Location: index.php');
-        exit();
-    } else {
-        // Invalid or expired token
-        setcookie('remember_token', '', time() - 3600, '/', '', true, true);
     }
 }
 ?>
@@ -133,255 +63,169 @@ if (isset($_COOKIE['remember_token']) && !isset($_SESSION['admin_logged_in'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Calculator Website</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Admin Login - Calculator</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #858796;
-            --success-color: #1cc88a;
-            --danger-color: #e74a3b;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .login-container {
-            max-width: 450px;
-            width: 100%;
             padding: 20px;
         }
 
-        .login-card {
+        .login-container {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
             overflow: hidden;
         }
 
         .login-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #224abe 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 3rem 2rem;
             text-align: center;
         }
 
         .login-header i {
             font-size: 3rem;
-            margin-bottom: 10px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
 
         .login-body {
-            padding: 40px;
+            padding: 2.5rem 2rem;
         }
 
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .btn-login {
-            background: var(--primary-color);
-            border: none;
-            padding: 12px;
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-        }
-
-        .btn-login:hover {
-            background: #224abe;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
-        }
-
-        .input-group-text {
-            background-color: #f8f9fc;
-            border-right: none;
+            color: #333;
         }
 
         .form-control {
-            border-left: none;
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
         }
 
         .alert {
-            border-radius: 10px;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
         }
 
-        .remember-me {
-            user-select: none;
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <i class="fas fa-shield-halved"></i>
-                <h2 class="mb-0">Admin Panel</h2>
-                <p class="mb-0 mt-2">Calculator Website</p>
-            </div>
-
-            <div class="login-body">
-                <?php if ($error): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        <?php echo htmlspecialchars($error); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <?php if ($success): ?>
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <?php echo htmlspecialchars($success); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" action="" id="loginForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Username</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-user"></i>
-                            </span>
-                            <input type="text" class="form-control" name="username" required 
-                                   placeholder="Enter username" autocomplete="username">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="fas fa-lock"></i>
-                            </span>
-                            <input type="password" class="form-control" name="password" required 
-                                   placeholder="Enter password" autocomplete="current-password" id="password">
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-3 form-check remember-me">
-                        <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
-                        <label class="form-check-label" for="rememberMe">
-                            Remember me for 30 days
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-login w-100">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
-                    </button>
-                </form>
-
-                <hr class="my-4">
-
-                <div class="text-center">
-                    <a href="forgot-password.php" class="text-decoration-none">
-                        <i class="fas fa-key me-1"></i>Forgot Password?
-                    </a>
-                </div>
-            </div>
+        <div class="login-header">
+            <i class="fas fa-shield-alt"></i>
+            <h1>Admin Login</h1>
+            <p>Calculator Administration</p>
         </div>
 
-        <div class="text-center mt-3 text-white">
-            <small>&copy; <?php echo date('Y'); ?> Calculator Website. All rights reserved.</small>
+        <div class="login-body">
+            <?php if ($error): ?>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="">
+                <div class="form-group">
+                    <label class="form-label">Username or Email</label>
+                    <input type="text" 
+                           name="username" 
+                           class="form-control" 
+                           value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
+                           placeholder="Enter username or email"
+                           required 
+                           autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="Enter password"
+                           required>
+                </div>
+
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+            </form>
+
+            <div class="back-link">
+                <a href="<?php echo SITE_URL; ?>"><i class="fas fa-home"></i> Back to Website</a>
+            </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const password = document.getElementById('password');
-            const icon = this.querySelector('i');
-            
-            if (password.type === 'password') {
-                password.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                password.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-
-        // Auto-dismiss alerts
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-    </script>
 </body>
 </html>
-<?php
-/**
- * Security Helper Functions
- */
-
-function checkLoginAttempts($username) {
-    global $pdo;
-    $stmt = $pdo->prepare("
-        SELECT COUNT(*) as attempts 
-        FROM login_attempts 
-        WHERE username = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)
-    ");
-    $stmt->execute([$username]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result['attempts'] >= 5;
-}
-
-function recordLoginAttempt($username) {
-    global $pdo;
-    $stmt = $pdo->prepare("INSERT INTO login_attempts (username, ip_address) VALUES (?, ?)");
-    $stmt->execute([$username, getClientIP()]);
-}
-
-function clearLoginAttempts($username) {
-    global $pdo;
-    $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE username = ?");
-    $stmt->execute([$username]);
-}
-
-function getClientIP() {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    }
-    return filter_var($ip, FILTER_VALIDATE_IP) ? $ip : '0.0.0.0';
-}
-
-function logActivity($userId, $action, $description, $metadata = null) {
-    global $pdo;
-    $stmt = $pdo->prepare("
-        INSERT INTO activity_log (user_id, action, description, ip_address, user_agent, metadata) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-    $stmt->execute([
-        $userId,
-        $action,
-        $description,
-        getClientIP(),
-        $_SERVER['HTTP_USER_AGENT'] ?? '',
-        $metadata ? json_encode($metadata) : null
-    ]);
-}
-?>  

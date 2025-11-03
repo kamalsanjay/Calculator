@@ -1,1 +1,7 @@
-  
+# Access Log File
+# Format: [YYYY-MM-DD HH:MM:SS] IP_ADDRESS - METHOD URL STATUS RESPONSE_TIME
+
+[2025-01-15 10:30:00] 192.168.1.100 - GET /calculators/financial/mortgage-calculator 200 0.15s
+[2025-01-15 10:30:15] 192.168.1.101 - POST /api/calculate 200 0.32s
+[2025-01-15 10:30:30] 192.168.1.102 - GET /admin/ 403 0.05s
+[2025-01-15 10:30:45] 192.168.1.100 - GET /assets/css/style.css 200 0.02s

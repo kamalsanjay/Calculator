@@ -1,0 +1,11 @@
+# Ignore all files in cache directory
+*
+
+# But keep these subdirectories
+!views/
+!data/
+!sessions/
+!.gitignore
+
+# Keep .gitignore files in subdirectories
+!*/.gitignore

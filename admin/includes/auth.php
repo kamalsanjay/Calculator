@@ -7,7 +7,7 @@
 session_start();
 
 require_once '../config/database.php';
-
+ 
 // Session timeout (30 minutes)
 define('SESSION_TIMEOUT', 1800);
 

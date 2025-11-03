@@ -1,589 +1,486 @@
 /**
- * Base Calculator Class
- * Provides core functionality for all calculator types
- * @version 1.0.0
+ * Calculator JavaScript
+ * Core calculation functionality
  */
 
-class Calculator {
-  /**
-   * Create a calculator instance
-   * @param {string} formId - ID of the calculator form
-   * @param {Object} options - Configuration options
-   */
-  constructor(formId, options = {}) {
-    this.form = document.getElementById(formId);
-    this.options = {
-      validateOnInput: true,
-      formatNumbers: true,
-      showSteps: false,
-      animateResults: true,
-      ...options
-    };
-    
-    this.inputs = {};
-    this.results = {};
-    this.isCalculating = false;
-    
-    if (this.form) {
-      this.init();
-    }
-  }
+(function() {
+    'use strict';
 
-  /**
-   * Initialize calculator
-   */
-  init() {
-    this.cacheElements();
-    this.bindEvents();
-    this.loadSavedInputs();
-  }
-
-  /**
-   * Cache form elements
-   */
-  cacheElements() {
-    // Cache all input fields
-    this.form.querySelectorAll('input, select, textarea').forEach(element => {
-      if (element.id || element.name) {
-        const key = element.id || element.name;
-        this.inputs[key] = element;
-      }
-    });
-
-    // Cache result display elements
-    this.resultContainer = this.form.querySelector('.result-container');
-    this.calculateBtn = this.form.querySelector('.calculate-btn');
-    this.resetBtn = this.form.querySelector('.reset-btn');
-    this.copyBtn = this.form.querySelector('.copy-btn');
-  }
-
-  /**
-   * Bind event listeners
-   */
-  bindEvents() {
-    // Form submission
-    this.form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      this.calculate();
-    });
-
-    // Calculate button
-    if (this.calculateBtn) {
-      this.calculateBtn.addEventListener('click', () => this.calculate());
-    }
-
-    // Reset button
-    if (this.resetBtn) {
-      this.resetBtn.addEventListener('click', () => this.reset());
-    }
-
-    // Copy button
-    if (this.copyBtn) {
-      this.copyBtn.addEventListener('click', () => this.copyResults());
-    }
-
-    // Real-time validation on input
-    if (this.options.validateOnInput) {
-      Object.values(this.inputs).forEach(input => {
-        input.addEventListener('input', () => {
-          this.validateInput(input);
-          this.saveInputs();
-        });
-
-        input.addEventListener('blur', () => {
-          this.formatInput(input);
-        });
-      });
-    }
-
-    // Number formatting for numeric inputs
-    if (this.options.formatNumbers) {
-      Object.values(this.inputs).forEach(input => {
-        if (input.type === 'number' || input.type === 'text') {
-          input.addEventListener('focus', () => this.removeFormatting(input));
-          input.addEventListener('blur', () => this.formatInput(input));
+    /**
+     * Base Calculator Class
+     */
+    class Calculator {
+        constructor(formId, options = {}) {
+            this.form = document.getElementById(formId);
+            this.options = options;
+            this.currency = localStorage.getItem('preferred_currency') || 'USD';
+            
+            if (this.form) {
+                this.init();
+            }
         }
-      });
-    }
-  }
 
-  /**
-   * Validate single input field
-   * @param {HTMLElement} input - Input element to validate
-   * @returns {boolean} Validation result
-   */
-  validateInput(input) {
-    const value = input.value.trim();
-    const type = input.type;
-    let isValid = true;
-    let errorMessage = '';
+        /**
+         * Initialize Calculator
+         */
+        init() {
+            this.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.calculate();
+            });
 
-    // Check required fields
-    if (input.required && !value) {
-      isValid = false;
-      errorMessage = 'This field is required';
-    }
+            // Reset button
+            const resetBtn = this.form.querySelector('.btn-reset');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    this.reset();
+                });
+            }
 
-    // Validate number inputs
-    if (type === 'number' || input.dataset.type === 'number') {
-      const num = parseFloat(value.replace(/,/g, ''));
-      
-      if (value && isNaN(num)) {
-        isValid = false;
-        errorMessage = 'Please enter a valid number';
-      }
+            // Real-time calculation
+            if (this.options.realtime) {
+                const inputs = this.form.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.addEventListener('input', debounce(() => {
+                        this.calculate();
+                    }, 500));
+                });
+            }
 
-      // Check min/max constraints
-      if (isValid && input.min && num < parseFloat(input.min)) {
-        isValid = false;
-        errorMessage = `Value must be at least ${input.min}`;
-      }
+            // Listen for currency changes
+            window.addEventListener('currencyChanged', (e) => {
+                this.currency = e.detail.currency;
+                if (this.lastResult) {
+                    this.displayResult(this.lastResult);
+                }
+            });
+        }
 
-      if (isValid && input.max && num > parseFloat(input.max)) {
-        isValid = false;
-        errorMessage = `Value must be at most ${input.max}`;
-      }
-    }
+        /**
+         * Get Form Data
+         */
+        getFormData() {
+            const formData = new FormData(this.form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                // Convert numeric values
+                if (!isNaN(value) && value !== '') {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = value;
+                }
+            }
+            
+            return data;
+        }
 
-    // Validate email
-    if (type === 'email' && value) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        isValid = false;
-        errorMessage = 'Please enter a valid email address';
-      }
-    }
+        /**
+         * Validate Inputs
+         */
+        validate(data) {
+            const errors = [];
+            
+            // Override this method in child classes
+            
+            return {
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        }
 
-    // Update UI
-    this.updateValidationUI(input, isValid, errorMessage);
+        /**
+         * Calculate
+         */
+        calculate() {
+            const data = this.getFormData();
+            const validation = this.validate(data);
 
-    return isValid;
-  }
+            if (!validation.isValid) {
+                this.showErrors(validation.errors);
+                return;
+            }
 
-  /**
-   * Update validation UI for input
-   * @param {HTMLElement} input - Input element
-   * @param {boolean} isValid - Validation status
-   * @param {string} errorMessage - Error message
-   */
-  updateValidationUI(input, isValid, errorMessage) {
-    const wrapper = input.closest('.form-group') || input.parentElement;
-    const errorElement = wrapper.querySelector('.error-message') || 
-                        this.createErrorElement();
+            // Show loading
+            this.showLoading();
 
-    if (isValid) {
-      input.classList.remove('error');
-      input.classList.add('valid');
-      errorElement.textContent = '';
-      errorElement.style.display = 'none';
-    } else {
-      input.classList.add('error');
-      input.classList.remove('valid');
-      errorElement.textContent = errorMessage;
-      errorElement.style.display = 'block';
-      
-      if (!wrapper.contains(errorElement)) {
-        wrapper.appendChild(errorElement);
-      }
-    }
-  }
+            // Perform calculation
+            try {
+                const result = this.performCalculation(data);
+                this.lastResult = result;
+                this.displayResult(result);
+                this.trackCalculation(data, result);
+            } catch (error) {
+                this.showError(error.message);
+            }
+        }
 
-  /**
-   * Create error message element
-   * @returns {HTMLElement} Error element
-   */
-  createErrorElement() {
-    const error = document.createElement('div');
-    error.className = 'error-message';
-    error.style.color = 'var(--error-color, #e74c3c)';
-    error.style.fontSize = '0.875rem';
-    error.style.marginTop = '0.25rem';
-    return error;
-  }
+        /**
+         * Perform Calculation (Override in child classes)
+         */
+        performCalculation(data) {
+            throw new Error('performCalculation method must be implemented');
+        }
 
-  /**
-   * Format input value for display
-   * @param {HTMLElement} input - Input element
-   */
-  formatInput(input) {
-    if (!this.options.formatNumbers) return;
-    
-    const value = input.value.trim();
-    if (!value) return;
+        /**
+         * Display Result
+         */
+        displayResult(result) {
+            const resultContainer = document.getElementById('result-container');
+            
+            if (!resultContainer) return;
 
-    if (input.type === 'number' || input.dataset.type === 'number') {
-      const num = parseFloat(value.replace(/,/g, ''));
-      if (!isNaN(num)) {
-        input.value = this.formatNumber(num);
-      }
-    }
-  }
+            resultContainer.innerHTML = this.formatResult(result);
+            resultContainer.classList.add('animate-slide-in-up');
+            resultContainer.style.display = 'block';
+        }
 
-  /**
-   * Remove formatting from input
-   * @param {HTMLElement} input - Input element
-   */
-  removeFormatting(input) {
-    if (input.type === 'number' || input.dataset.type === 'number') {
-      const value = input.value.replace(/,/g, '');
-      input.value = value;
-    }
-  }
+        /**
+         * Format Result (Override in child classes)
+         */
+        formatResult(result) {
+            return `<div class="result-card"><h3>Result: ${result}</h3></div>`;
+        }
 
-  /**
-   * Format number with commas and decimals
-   * @param {number} num - Number to format
-   * @param {number} decimals - Number of decimal places
-   * @returns {string} Formatted number
-   */
-  formatNumber(num, decimals = 2) {
-    if (isNaN(num)) return '0';
-    
-    const fixed = parseFloat(num).toFixed(decimals);
-    const parts = fixed.split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
-    // Remove trailing zeros after decimal
-    if (parts[1]) {
-      parts[1] = parts[1].replace(/0+$/, '');
-      if (parts[1] === '') {
-        return parts[0];
-      }
-    }
-    
-    return parts.join('.');
-  }
+        /**
+         * Show Loading
+         */
+        showLoading() {
+            const resultContainer = document.getElementById('result-container');
+            if (resultContainer) {
+                resultContainer.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+                resultContainer.style.display = 'block';
+            }
+        }
 
-  /**
-   * Format currency value
-   * @param {number} num - Number to format
-   * @param {string} currency - Currency symbol
-   * @returns {string} Formatted currency
-   */
-  formatCurrency(num, currency = '$') {
-    return `${currency}${this.formatNumber(num, 2)}`;
-  }
+        /**
+         * Show Errors
+         */
+        showErrors(errors) {
+            const errorHtml = errors.map(error => 
+                `<div class="alert alert-danger">${error}</div>`
+            ).join('');
+            
+            const resultContainer = document.getElementById('result-container');
+            if (resultContainer) {
+                resultContainer.innerHTML = errorHtml;
+                resultContainer.style.display = 'block';
+            }
+        }
 
-  /**
-   * Format percentage value
-   * @param {number} num - Number to format
-   * @param {number} decimals - Decimal places
-   * @returns {string} Formatted percentage
-   */
-  formatPercentage(num, decimals = 2) {
-    return `${this.formatNumber(num, decimals)}%`;
-  }
+        /**
+         * Show Error
+         */
+        showError(message) {
+            const resultContainer = document.getElementById('result-container');
+            if (resultContainer) {
+                resultContainer.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+                resultContainer.style.display = 'block';
+            }
+        }
 
-  /**
-   * Parse input value to number
-   * @param {string|number} value - Value to parse
-   * @returns {number} Parsed number
-   */
-  parseNumber(value) {
-    if (typeof value === 'number') return value;
-    const cleaned = String(value).replace(/[^0-9.-]/g, '');
-    return parseFloat(cleaned) || 0;
-  }
+        /**
+         * Reset Form
+         */
+        reset() {
+            this.form.reset();
+            const resultContainer = document.getElementById('result-container');
+            if (resultContainer) {
+                resultContainer.style.display = 'none';
+            }
+            this.lastResult = null;
+        }
 
-  /**
-   * Get input value as number
-   * @param {string} inputId - Input ID
-   * @returns {number} Input value as number
-   */
-  getInputValue(inputId) {
-    const input = this.inputs[inputId];
-    if (!input) return 0;
-    return this.parseNumber(input.value);
-  }
+        /**
+         * Track Calculation
+         */
+        trackCalculation(inputData, resultData) {
+            fetch('/api/track/calculation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    calculator: this.options.name || 'unknown',
+                    input_data: inputData,
+                    result_data: resultData
+                })
+            }).catch(error => {
+                console.error('Tracking error:', error);
+            });
+        }
 
-  /**
-   * Set input value
-   * @param {string} inputId - Input ID
-   * @param {string|number} value - Value to set
-   */
-  setInputValue(inputId, value) {
-    const input = this.inputs[inputId];
-    if (input) {
-      input.value = value;
-    }
-  }
+        /**
+         * Save Calculation
+         */
+        saveCalculation(name) {
+            if (!this.lastResult) {
+                showNotification('No calculation to save', 'warning');
+                return;
+            }
 
-  /**
-   * Validate all form inputs
-   * @returns {boolean} Overall validation result
-   */
-  validateForm() {
-    let isValid = true;
+            const data = {
+                calculator_name: this.options.name,
+                calculation_name: name,
+                input_data: this.getFormData(),
+                result_data: this.lastResult
+            };
 
-    Object.values(this.inputs).forEach(input => {
-      if (!this.validateInput(input)) {
-        isValid = false;
-      }
-    });
+            fetch('/api/calculations/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Calculation saved successfully!', 'success');
+                } else {
+                    showNotification('Failed to save calculation', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                showNotification('Failed to save calculation', 'error');
+            });
+        }
 
-    return isValid;
-  }
+        /**
+         * Print Result
+         */
+        printResult() {
+            window.print();
+        }
 
-  /**
-   * Calculate results (to be overridden by child classes)
-   * @returns {Object} Calculation results
-   */
-  performCalculation() {
-    throw new Error('performCalculation() must be implemented by child class');
-  }
-
-  /**
-   * Execute calculation
-   */
-  async calculate() {
-    if (this.isCalculating) return;
-
-    // Validate form
-    if (!this.validateForm()) {
-      this.showError('Please fix the errors before calculating');
-      return;
-    }
-
-    try {
-      this.isCalculating = true;
-      this.showLoading();
-
-      // Perform calculation (with slight delay for UX)
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-      this.results = this.performCalculation();
-      
-      this.displayResults();
-      this.saveInputs();
-      
-      if (this.options.animateResults) {
-        this.animateResults();
-      }
-
-    } catch (error) {
-      console.error('Calculation error:', error);
-      this.showError('An error occurred during calculation. Please check your inputs.');
-    } finally {
-      this.isCalculating = false;
-      this.hideLoading();
-    }
-  }
-
-  /**
-   * Display calculation results
-   */
-  displayResults() {
-    if (!this.resultContainer) return;
-
-    this.resultContainer.style.display = 'block';
-    this.resultContainer.innerHTML = this.formatResults();
-  }
-
-  /**
-   * Format results for display (to be overridden by child classes)
-   * @returns {string} Formatted HTML
-   */
-  formatResults() {
-    let html = '<div class="results">';
-    
-    for (const [key, value] of Object.entries(this.results)) {
-      html += `
-        <div class="result-item">
-          <span class="result-label">${this.formatLabel(key)}:</span>
-          <span class="result-value">${value}</span>
-        </div>
-      `;
-    }
-    
-    html += '</div>';
-    return html;
-  }
-
-  /**
-   * Format label from camelCase
-   * @param {string} str - String to format
-   * @returns {string} Formatted label
-   */
-  formatLabel(str) {
-    return str
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
-  }
-
-  /**
-   * Animate results display
-   */
-  animateResults() {
-    if (!this.resultContainer) return;
-
-    this.resultContainer.style.opacity = '0';
-    this.resultContainer.style.transform = 'translateY(20px)';
-
-    requestAnimationFrame(() => {
-      this.resultContainer.style.transition = 'all 0.3s ease-out';
-      this.resultContainer.style.opacity = '1';
-      this.resultContainer.style.transform = 'translateY(0)';
-    });
-  }
-
-  /**
-   * Show loading state
-   */
-  showLoading() {
-    if (this.calculateBtn) {
-      this.calculateBtn.disabled = true;
-      this.calculateBtn.classList.add('loading');
-      this.calculateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
-    }
-  }
-
-  /**
-   * Hide loading state
-   */
-  hideLoading() {
-    if (this.calculateBtn) {
-      this.calculateBtn.disabled = false;
-      this.calculateBtn.classList.remove('loading');
-      this.calculateBtn.innerHTML = '<i class="fas fa-calculator"></i> Calculate';
-    }
-  }
-
-  /**
-   * Show error message
-   * @param {string} message - Error message
-   */
-  showError(message) {
-    if (!this.resultContainer) return;
-
-    this.resultContainer.style.display = 'block';
-    this.resultContainer.innerHTML = `
-      <div class="error-box" style="background-color: #fee; border: 1px solid #e74c3c; border-radius: 8px; padding: 1rem; color: #c0392b;">
-        <i class="fas fa-exclamation-circle"></i> ${message}
-      </div>
-    `;
-  }
-
-  /**
-   * Reset calculator
-   */
-  reset() {
-    this.form.reset();
-    
-    Object.values(this.inputs).forEach(input => {
-      input.classList.remove('valid', 'error');
-    });
-
-    if (this.resultContainer) {
-      this.resultContainer.style.display = 'none';
-      this.resultContainer.innerHTML = '';
+        /**
+         * Share Result
+         */
+        shareResult() {
+            if (navigator.share) {
+                navigator.share({
+                    title: this.options.name || 'Calculator Result',
+                    text: 'Check out my calculation result!',
+                    url: window.location.href
+                }).catch(error => {
+                    console.error('Share error:', error);
+                });
+            } else {
+                copyToClipboard(window.location.href);
+                showNotification('Link copied to clipboard!', 'success');
+            }
+        }
     }
 
-    this.results = {};
-    this.clearSavedInputs();
-  }
+    // Make Calculator class globally available
+    window.Calculator = Calculator;
 
-  /**
-   * Copy results to clipboard
-   */
-  async copyResults() {
-    const text = this.getResultsText();
-    
-    try {
-      await navigator.clipboard.writeText(text);
-      this.showCopySuccess();
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  }
+    /**
+     * Financial Calculator Helper Functions
+     */
+    window.FinancialCalculator = {
+        /**
+         * Calculate Monthly Payment
+         */
+        calculateMonthlyPayment(principal, annualRate, years) {
+            const monthlyRate = annualRate / 100 / 12;
+            const numberOfPayments = years * 12;
+            
+            if (monthlyRate === 0) {
+                return principal / numberOfPayments;
+            }
+            
+            const payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
+                           (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+            
+            return payment;
+        },
 
-  /**
-   * Get results as plain text
-   * @returns {string} Results text
-   */
-  getResultsText() {
-    let text = 'Calculation Results:\n\n';
-    
-    for (const [key, value] of Object.entries(this.results)) {
-      text += `${this.formatLabel(key)}: ${value}\n`;
-    }
-    
-    return text;
-  }
+        /**
+         * Calculate Compound Interest
+         */
+        calculateCompoundInterest(principal, annualRate, years, compoundsPerYear = 12) {
+            const rate = annualRate / 100;
+            const amount = principal * Math.pow((1 + rate / compoundsPerYear), compoundsPerYear * years);
+            return amount;
+        },
 
-  /**
-   * Show copy success message
-   */
-  showCopySuccess() {
-    if (!this.copyBtn) return;
+        /**
+         * Calculate Future Value
+         */
+        calculateFutureValue(principal, monthlyContribution, annualRate, years) {
+            const monthlyRate = annualRate / 100 / 12;
+            const months = years * 12;
+            
+            // Future value of principal
+            const fvPrincipal = principal * Math.pow(1 + monthlyRate, months);
+            
+            // Future value of contributions
+            const fvContributions = monthlyContribution * 
+                ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate);
+            
+            return fvPrincipal + fvContributions;
+        },
 
-    const originalText = this.copyBtn.innerHTML;
-    this.copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    this.copyBtn.classList.add('success');
+        /**
+         * Calculate Present Value
+         */
+        calculatePresentValue(futureValue, annualRate, years) {
+            const rate = annualRate / 100;
+            return futureValue / Math.pow(1 + rate, years);
+        },
 
-    setTimeout(() => {
-      this.copyBtn.innerHTML = originalText;
-      this.copyBtn.classList.remove('success');
-    }, 2000);
-  }
+        /**
+         * Calculate ROI
+         */
+        calculateROI(initialInvestment, finalValue) {
+            return ((finalValue - initialInvestment) / initialInvestment) * 100;
+        }
+    };
 
-  /**
-   * Save input values to localStorage
-   */
-  saveInputs() {
-    const formId = this.form.id;
-    if (!formId) return;
+    /**
+     * Health Calculator Helper Functions
+     */
+    window.HealthCalculator = {
+        /**
+         * Calculate BMI
+         */
+        calculateBMI(weight, height) {
+            // weight in kg, height in meters
+            return weight / (height * height);
+        },
 
-    const data = {};
-    Object.entries(this.inputs).forEach(([key, input]) => {
-      data[key] = input.value;
-    });
+        /**
+         * Get BMI Category
+         */
+        getBMICategory(bmi) {
+            if (bmi < 18.5) return 'Underweight';
+            if (bmi < 25) return 'Normal weight';
+            if (bmi < 30) return 'Overweight';
+            return 'Obese';
+        },
 
-    try {
-      localStorage.setItem(`calculator_${formId}`, JSON.stringify(data));
-    } catch (e) {
-      console.warn('Failed to save inputs:', e);
-    }
-  }
+        /**
+         * Calculate BMR (Mifflin-St Jeor)
+         */
+        calculateBMR(weight, height, age, gender) {
+            // weight in kg, height in cm
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            return gender === 'male' ? bmr + 5 : bmr - 161;
+        },
 
-  /**
-   * Load saved input values from localStorage
-   */
-  loadSavedInputs() {
-    const formId = this.form.id;
-    if (!formId) return;
+        /**
+         * Calculate TDEE
+         */
+        calculateTDEE(bmr, activityLevel) {
+            const multipliers = {
+                'sedentary': 1.2,
+                'light': 1.375,
+                'moderate': 1.55,
+                'active': 1.725,
+                'very_active': 1.9
+            };
+            return bmr * (multipliers[activityLevel] || 1.2);
+        },
 
-    try {
-      const saved = localStorage.getItem(`calculator_${formId}`);
-      if (saved) {
-        const data = JSON.parse(saved);
-        Object.entries(data).forEach(([key, value]) => {
-          if (this.inputs[key]) {
-            this.inputs[key].value = value;
-          }
-        });
-      }
-    } catch (e) {
-      console.warn('Failed to load saved inputs:', e);
-    }
-  }
+        /**
+         * Calculate Ideal Weight (Robinson Formula)
+         */
+        calculateIdealWeight(height, gender) {
+            // height in cm
+            const inches = height / 2.54;
+            const baseHeight = 60;
+            
+            if (gender === 'male') {
+                return 52 + (1.9 * (inches - baseHeight));
+            } else {
+                return 49 + (1.7 * (inches - baseHeight));
+            }
+        },
 
-  /**
-   * Clear saved inputs from localStorage
-   */
-  clearSavedInputs() {
-    const formId = this.form.id;
-    if (!formId) return;
+        /**
+         * Calculate Body Fat Percentage (Navy Method)
+         */
+        calculateBodyFat(waist, neck, height, hip = null, gender = 'male') {
+            if (gender === 'male') {
+                return 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 
+                       0.15456 * Math.log10(height)) - 450;
+            } else {
+                return 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 
+                       0.22100 * Math.log10(height)) - 450;
+            }
+        }
+    };
 
-    try {
-      localStorage.removeItem(`calculator_${formId}`);
-    } catch (e) {
-      console.warn('Failed to clear saved inputs:', e);
-    }
-  }
-}
+    /**
+     * Math Calculator Helper Functions
+     */
+    window.MathCalculator = {
+        /**
+         * Calculate Percentage
+         */
+        calculatePercentage(value, total) {
+            return (value / total) * 100;
+        },
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Calculator;
-}  
+        /**
+         * Calculate Percentage Change
+         */
+        calculatePercentageChange(oldValue, newValue) {
+            return ((newValue - oldValue) / oldValue) * 100;
+        },
+
+        /**
+         * Calculate Standard Deviation
+         */
+        calculateStandardDeviation(values) {
+            const n = values.length;
+            const mean = values.reduce((a, b) => a + b) / n;
+            const squaredDiffs = values.map(value => Math.pow(value - mean, 2));
+            const variance = squaredDiffs.reduce((a, b) => a + b) / n;
+            return Math.sqrt(variance);
+        },
+
+        /**
+         * Calculate Mean
+         */
+        calculateMean(values) {
+            return values.reduce((a, b) => a + b) / values.length;
+        },
+
+        /**
+         * Calculate Median
+         */
+        calculateMedian(values) {
+            const sorted = values.slice().sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+        },
+
+        /**
+         * Calculate Mode
+         */
+        calculateMode(values) {
+            const frequency = {};
+            let maxFreq = 0;
+            let modes = [];
+            
+            values.forEach(value => {
+                frequency[value] = (frequency[value] || 0) + 1;
+                if (frequency[value] > maxFreq) {
+                    maxFreq = frequency[value];
+                }
+            });
+            
+            for (let key in frequency) {
+                if (frequency[key] === maxFreq) {
+                    modes.push(Number(key));
+                }
+            }
+            
+            return modes;
+        }
+    };
+
+})();

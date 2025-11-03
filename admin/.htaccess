@@ -1,0 +1,29 @@
+# Admin Panel .htaccess
+# Separate routing for admin section
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Calculator/admin/
+
+    # Don't rewrite if file exists
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule ^ - [L]
+
+    # Don't rewrite if directory exists
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Allow direct access to PHP files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.+)\.php$ $1.php [L]
+
+    # Redirect to index.php for admin dashboard
+    RewriteRule ^$ index.php [L]
+</IfModule>
+
+# Protect this directory
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
