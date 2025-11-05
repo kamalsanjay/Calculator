@@ -270,7 +270,7 @@
             .metric-grid {
                 grid-template-columns: 1fr;
             }
-        }
+        } 
     </style>
 </head>
 <body>
