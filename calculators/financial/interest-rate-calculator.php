@@ -433,6 +433,59 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
+        /* Currency Selector Styles */
+        .currency-selector-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .currency-selector-container h3 {
+            color: #9C27B0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .currency-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .currency-option:hover {
+            border-color: #9C27B0;
+            transform: translateY(-2px);
+        }
+        
+        .currency-option.active {
+            background: #9C27B0;
+            color: white;
+            border-color: #7B1FA2;
+        }
+        
+        .currency-option .symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .currency-option .name {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
         
         @media (max-width: 768px) {
             .calculator-wrapper {
@@ -462,12 +515,63 @@
             .impact-analysis {
                 grid-template-columns: 1fr;
             }
+            
+            .currency-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 
     <div class="container">
         <div class="breadcrumb">
             <a href="index.php">&larr; Back to Financial Calculators</a>
+        </div>
+
+        <!-- Currency Selector -->
+        <div class="currency-selector-container">
+            <h3>Select Currency</h3>
+            <div class="currency-grid">
+                <div class="currency-option active" data-currency="USD">
+                    <div class="symbol">$</div>
+                    <div class="name">US Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="EUR">
+                    <div class="symbol">€</div>
+                    <div class="name">Euro</div>
+                </div>
+                <div class="currency-option" data-currency="GBP">
+                    <div class="symbol">£</div>
+                    <div class="name">British Pound</div>
+                </div>
+                <div class="currency-option" data-currency="JPY">
+                    <div class="symbol">¥</div>
+                    <div class="name">Japanese Yen</div>
+                </div>
+                <div class="currency-option" data-currency="INR">
+                    <div class="symbol">₹</div>
+                    <div class="name">Indian Rupee</div>
+                </div>
+                <div class="currency-option" data-currency="CAD">
+                    <div class="symbol">C$</div>
+                    <div class="name">Canadian Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="AUD">
+                    <div class="symbol">A$</div>
+                    <div class="name">Australian Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="CHF">
+                    <div class="symbol">CHF</div>
+                    <div class="name">Swiss Franc</div>
+                </div>
+                <div class="currency-option" data-currency="CNY">
+                    <div class="symbol">¥</div>
+                    <div class="name">Chinese Yuan</div>
+                </div>
+                <div class="currency-option" data-currency="MXN">
+                    <div class="symbol">Mex$</div>
+                    <div class="name">Mexican Peso</div>
+                </div>
+            </div>
         </div>
 
         <div class="calculator-wrapper">
@@ -522,12 +626,12 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="applicationFee">Application Fee ($)</label>
+                        <label for="applicationFee">Application Fee</label>
                         <input type="number" id="applicationFee" value="250" min="0" max="5000" step="10">
                     </div>
                     
                     <div class="form-group">
-                        <label for="otherFees">Other Fees ($)</label>
+                        <label for="otherFees">Other Fees</label>
                         <input type="number" id="otherFees" value="150" min="0" max="10000" step="10">
                         <small>Closing costs, processing fees, etc.</small>
                     </div>
@@ -657,15 +761,15 @@
                             <h4>Your Loan</h4>
                             <div class="breakdown-item">
                                 <span>APR</span>
-                                <strong>5.72%</strong>
+                                <strong id="comparisonYourAPR">5.72%</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Monthly</span>
-                                <strong>$478</strong>
+                                <strong id="comparisonYourMonthly">$478</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Total Cost</span>
-                                <strong>$29,330</strong>
+                                <strong id="comparisonYourTotal">$29,330</strong>
                             </div>
                         </div>
                         
@@ -673,15 +777,15 @@
                             <h4>Lower Rate (4.5%)</h4>
                             <div class="breakdown-item">
                                 <span>APR</span>
-                                <strong>4.68%</strong>
+                                <strong id="comparisonLowAPR">4.68%</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Monthly</span>
-                                <strong>$456</strong>
+                                <strong id="comparisonLowMonthly">$456</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Total Cost</span>
-                                <strong>$27,360</strong>
+                                <strong id="comparisonLowTotal">$27,360</strong>
                             </div>
                         </div>
                         
@@ -689,15 +793,15 @@
                             <h4>Higher Rate (7.5%)</h4>
                             <div class="breakdown-item">
                                 <span>APR</span>
-                                <strong>7.72%</strong>
+                                <strong id="comparisonHighAPR">7.72%</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Monthly</span>
-                                <strong>$501</strong>
+                                <strong id="comparisonHighMonthly">$501</strong>
                             </div>
                             <div class="breakdown-item">
                                 <span>Total Cost</span>
-                                <strong>$30,060</strong>
+                                <strong id="comparisonHighTotal">$30,060</strong>
                             </div>
                         </div>
                     </div>
@@ -770,10 +874,38 @@
     </div>
 
     <script>
+        // Currency configuration
+        const currencyConfig = {
+            'USD': { symbol: '$', name: 'US Dollar', locale: 'en-US' },
+            'EUR': { symbol: '€', name: 'Euro', locale: 'de-DE' },
+            'GBP': { symbol: '£', name: 'British Pound', locale: 'en-GB' },
+            'JPY': { symbol: '¥', name: 'Japanese Yen', locale: 'ja-JP' },
+            'INR': { symbol: '₹', name: 'Indian Rupee', locale: 'en-IN' },
+            'CAD': { symbol: 'C$', name: 'Canadian Dollar', locale: 'en-CA' },
+            'AUD': { symbol: 'A$', name: 'Australian Dollar', locale: 'en-AU' },
+            'CHF': { symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH' },
+            'CNY': { symbol: '¥', name: 'Chinese Yuan', locale: 'zh-CN' },
+            'MXN': { symbol: 'Mex$', name: 'Mexican Peso', locale: 'es-MX' }
+        };
+        
+        // Current currency
+        let currentCurrency = 'USD';
+        
         const form = document.getElementById('interestRateForm');
         const calculationOptions = document.querySelectorAll('.calculator-option');
         const rateSlider = document.getElementById('rateSlider');
         const termSlider = document.getElementById('termSlider');
+        
+        // Currency selection
+        document.querySelectorAll('.currency-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.currency-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                currentCurrency = this.dataset.currency;
+                calculateInterestRates();
+            });
+        });
         
         // Calculation type selection
         calculationOptions.forEach(option => {
@@ -879,6 +1011,9 @@
             document.getElementById('rateIncrease').textContent = '+' + rateIncrease.toFixed(2) + '%';
             document.getElementById('additionalInterest').textContent = formatCurrency(additionalInterest);
             
+            // Update comparison cards
+            updateComparisonCards(loanAmount, loanTerm, totalFees, nominalRate);
+            
             // Generate rate comparison
             generateRateComparison(loanAmount, loanTerm, totalFees);
             
@@ -897,6 +1032,41 @@
             
             recommendation += `The APR is ${rateIncrease.toFixed(2)}% higher than the nominal rate due to fees.`;
             document.getElementById('recommendationText').textContent = recommendation;
+        }
+        
+        function updateComparisonCards(loanAmount, loanTerm, totalFees, currentRate) {
+            // Your loan
+            document.getElementById('comparisonYourAPR').textContent = calculateAPR(loanAmount, totalFees, 
+                calculateMonthlyPayment(loanAmount, currentRate, loanTerm), loanTerm * 12).toFixed(2) + '%';
+            document.getElementById('comparisonYourMonthly').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, currentRate, loanTerm));
+            document.getElementById('comparisonYourTotal').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, currentRate, loanTerm) * loanTerm * 12 + totalFees);
+            
+            // Lower rate (4.5%)
+            const lowRate = 4.5;
+            document.getElementById('comparisonLowAPR').textContent = calculateAPR(loanAmount, totalFees, 
+                calculateMonthlyPayment(loanAmount, lowRate, loanTerm), loanTerm * 12).toFixed(2) + '%';
+            document.getElementById('comparisonLowMonthly').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, lowRate, loanTerm));
+            document.getElementById('comparisonLowTotal').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, lowRate, loanTerm) * loanTerm * 12 + totalFees);
+            
+            // Higher rate (7.5%)
+            const highRate = 7.5;
+            document.getElementById('comparisonHighAPR').textContent = calculateAPR(loanAmount, totalFees, 
+                calculateMonthlyPayment(loanAmount, highRate, loanTerm), loanTerm * 12).toFixed(2) + '%';
+            document.getElementById('comparisonHighMonthly').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, highRate, loanTerm));
+            document.getElementById('comparisonHighTotal').textContent = formatCurrency(
+                calculateMonthlyPayment(loanAmount, highRate, loanTerm) * loanTerm * 12 + totalFees);
+        }
+        
+        function calculateMonthlyPayment(loanAmount, rate, term) {
+            const months = term * 12;
+            const monthlyRate = rate / 100 / 12;
+            return loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+                   (Math.pow(1 + monthlyRate, months) - 1);
         }
         
         function calculateAPR(loanAmount, totalFees, monthlyPayment, months) {
@@ -946,7 +1116,7 @@
                 const apr = calculateAPR(loanAmount, totalFees, monthlyPayment, months);
                 
                 // Calculate savings compared to current rate
-                const currentMonthly = parseFloat(document.getElementById('monthlyPayment').textContent.replace('$', '').replace(',', ''));
+                const currentMonthly = parseFloat(document.getElementById('monthlyPayment').textContent.replace(/[^0-9.-]+/g,""));
                 const savings = (currentMonthly - monthlyPayment) * months;
                 
                 const isCurrent = Math.abs(rate - currentRate) < 0.1;
@@ -1026,16 +1196,48 @@
         }
         
         function formatCurrency(amount) {
-            if (amount >= 0) {
-                return '$' + Math.abs(amount).toLocaleString('en-US', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                });
-            } else {
-                return '-$' + Math.abs(amount).toLocaleString('en-US', {
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                });
+            const currency = currencyConfig[currentCurrency];
+            if (!currency) {
+                if (amount >= 0) {
+                    return '$' + Math.abs(amount).toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                } else {
+                    return '-$' + Math.abs(amount).toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                }
+            }
+            
+            // For currencies like JPY that typically don't use decimals
+            const options = {
+                style: 'currency',
+                currency: currentCurrency,
+                minimumFractionDigits: currentCurrency === 'JPY' ? 0 : 0,
+                maximumFractionDigits: currentCurrency === 'JPY' ? 0 : 0
+            };
+            
+            try {
+                if (amount >= 0) {
+                    return Math.abs(amount).toLocaleString(currency.locale, options);
+                } else {
+                    return '-' + Math.abs(amount).toLocaleString(currency.locale, options);
+                }
+            } catch (e) {
+                // Fallback if locale formatting fails
+                if (amount >= 0) {
+                    return currency.symbol + Math.abs(amount).toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                } else {
+                    return '-' + currency.symbol + Math.abs(amount).toLocaleString('en-US', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                }
             }
         }
 

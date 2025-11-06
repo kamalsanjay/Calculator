@@ -432,6 +432,59 @@
         .impact-item:last-child {
             border-bottom: none;
         }
+
+        /* Currency Selector Styles */
+        .currency-selector-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .currency-selector-container h3 {
+            color: #FFA726;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .currency-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .currency-option:hover {
+            border-color: #FFA726;
+            transform: translateY(-2px);
+        }
+        
+        .currency-option.active {
+            background: #FFA726;
+            color: white;
+            border-color: #FB8C00;
+        }
+        
+        .currency-option .symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .currency-option .name {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
         
         @media (max-width: 768px) {
             .calculator-wrapper {
@@ -461,12 +514,63 @@
             .scenario-comparison {
                 grid-template-columns: 1fr;
             }
+            
+            .currency-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 
     <div class="container">
         <div class="breadcrumb">
             <a href="index.php">&larr; Back to Financial Calculators</a>
+        </div>
+
+        <!-- Currency Selector -->
+        <div class="currency-selector-container">
+            <h3>Select Currency</h3>
+            <div class="currency-grid">
+                <div class="currency-option active" data-currency="USD">
+                    <div class="symbol">$</div>
+                    <div class="name">US Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="EUR">
+                    <div class="symbol">€</div>
+                    <div class="name">Euro</div>
+                </div>
+                <div class="currency-option" data-currency="GBP">
+                    <div class="symbol">£</div>
+                    <div class="name">British Pound</div>
+                </div>
+                <div class="currency-option" data-currency="JPY">
+                    <div class="symbol">¥</div>
+                    <div class="name">Japanese Yen</div>
+                </div>
+                <div class="currency-option" data-currency="INR">
+                    <div class="symbol">₹</div>
+                    <div class="name">Indian Rupee</div>
+                </div>
+                <div class="currency-option" data-currency="CAD">
+                    <div class="symbol">C$</div>
+                    <div class="name">Canadian Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="AUD">
+                    <div class="symbol">A$</div>
+                    <div class="name">Australian Dollar</div>
+                </div>
+                <div class="currency-option" data-currency="CHF">
+                    <div class="symbol">CHF</div>
+                    <div class="name">Swiss Franc</div>
+                </div>
+                <div class="currency-option" data-currency="CNY">
+                    <div class="symbol">¥</div>
+                    <div class="name">Chinese Yuan</div>
+                </div>
+                <div class="currency-option" data-currency="MXN">
+                    <div class="symbol">Mex$</div>
+                    <div class="name">Mexican Peso</div>
+                </div>
+            </div>
         </div>
 
         <div class="calculator-wrapper">
@@ -712,9 +816,37 @@
     </div>
 
     <script>
+        // Currency configuration
+        const currencyConfig = {
+            'USD': { symbol: '$', name: 'US Dollar', locale: 'en-US' },
+            'EUR': { symbol: '€', name: 'Euro', locale: 'de-DE' },
+            'GBP': { symbol: '£', name: 'British Pound', locale: 'en-GB' },
+            'JPY': { symbol: '¥', name: 'Japanese Yen', locale: 'ja-JP' },
+            'INR': { symbol: '₹', name: 'Indian Rupee', locale: 'en-IN' },
+            'CAD': { symbol: 'C$', name: 'Canadian Dollar', locale: 'en-CA' },
+            'AUD': { symbol: 'A$', name: 'Australian Dollar', locale: 'en-AU' },
+            'CHF': { symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH' },
+            'CNY': { symbol: '¥', name: 'Chinese Yuan', locale: 'zh-CN' },
+            'MXN': { symbol: 'Mex$', name: 'Mexican Peso', locale: 'es-MX' }
+        };
+        
+        // Current currency
+        let currentCurrency = 'USD';
+        
         const form = document.getElementById('interestForm');
         const interestOptions = document.querySelectorAll('.interest-option');
         const frequencyOptions = document.querySelectorAll('.frequency-option');
+        
+        // Currency selection
+        document.querySelectorAll('.currency-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.currency-option').forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                currentCurrency = this.dataset.currency;
+                calculateInterest();
+            });
+        });
         
         // Interest type selection
         interestOptions.forEach(option => {
@@ -1001,10 +1133,26 @@
         }
         
         function formatCurrency(amount) {
-            return '$' + amount.toLocaleString('en-US', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
+            const currency = currencyConfig[currentCurrency];
+            if (!currency) return '$' + amount.toLocaleString();
+            
+            // For currencies like JPY that typically don't use decimals
+            const options = {
+                style: 'currency',
+                currency: currentCurrency,
+                minimumFractionDigits: currentCurrency === 'JPY' ? 0 : 0,
+                maximumFractionDigits: currentCurrency === 'JPY' ? 0 : 0
+            };
+            
+            try {
+                return amount.toLocaleString(currency.locale, options);
+            } catch (e) {
+                // Fallback if locale formatting fails
+                return currency.symbol + amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            }
         }
 
         window.addEventListener('load', function() {

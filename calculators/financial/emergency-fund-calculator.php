@@ -426,6 +426,30 @@
             flex-shrink: 0;
         }
         
+        .currency-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .currency-selector label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .currency-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            background: white;
+        }
+        
         @media (max-width: 768px) {
             .calculator-wrapper {
                 grid-template-columns: 1fr;
@@ -458,6 +482,24 @@
         <div class="calculator-wrapper">
             <div class="calculator-section">
                 <h2>Financial Information</h2>
+                
+                <!-- Currency Selector -->
+                <div class="currency-selector">
+                    <label for="currency">Select Currency</label>
+                    <select id="currency">
+                        <option value="USD">US Dollar ($)</option>
+                        <option value="EUR">Euro (€)</option>
+                        <option value="GBP">British Pound (£)</option>
+                        <option value="JPY">Japanese Yen (¥)</option>
+                        <option value="INR">Indian Rupee (₹)</option>
+                        <option value="CAD">Canadian Dollar (C$)</option>
+                        <option value="AUD">Australian Dollar (A$)</option>
+                        <option value="CHF">Swiss Franc (CHF)</option>
+                        <option value="CNY">Chinese Yuan (¥)</option>
+                        <option value="MXN">Mexican Peso (Mex$)</option>
+                    </select>
+                </div>
+                
                 <form id="emergencyFundForm">
                     <div class="form-group">
                         <label>Emergency Fund Scenario</label>
@@ -756,6 +798,31 @@
         const scenarioOptions = document.querySelectorAll('.scenario-option');
         const incomeOptions = document.querySelectorAll('.income-option');
         const expenseInputs = document.querySelectorAll('.expense-input');
+        const currencySelector = document.getElementById('currency');
+        
+        // Currency configuration
+        const currencyConfig = {
+            'USD': { symbol: '$', name: 'US Dollar', locale: 'en-US' },
+            'EUR': { symbol: '€', name: 'Euro', locale: 'de-DE' },
+            'GBP': { symbol: '£', name: 'British Pound', locale: 'en-GB' },
+            'JPY': { symbol: '¥', name: 'Japanese Yen', locale: 'ja-JP' },
+            'INR': { symbol: '₹', name: 'Indian Rupee', locale: 'en-IN' },
+            'CAD': { symbol: 'C$', name: 'Canadian Dollar', locale: 'en-CA' },
+            'AUD': { symbol: 'A$', name: 'Australian Dollar', locale: 'en-AU' },
+            'CHF': { symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH' },
+            'CNY': { symbol: '¥', name: 'Chinese Yuan', locale: 'zh-CN' },
+            'MXN': { symbol: 'Mex$', name: 'Mexican Peso', locale: 'es-MX' }
+        };
+        
+        // Current currency
+        let currentCurrency = 'USD';
+        
+        // Update currency when selector changes
+        currencySelector.addEventListener('change', function() {
+            currentCurrency = this.value;
+            updateTotalExpenses();
+            calculateEmergencyFund();
+        });
         
         // Update total expenses in real-time
         expenseInputs.forEach(input => {
@@ -937,10 +1004,26 @@
         }
 
         function formatCurrency(amount) {
-            return '$' + amount.toLocaleString('en-US', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            });
+            const currency = currencyConfig[currentCurrency];
+            if (!currency) return '$' + amount.toLocaleString();
+            
+            // For currencies like JPY that typically don't use decimals
+            const options = {
+                style: 'currency',
+                currency: currentCurrency,
+                minimumFractionDigits: currentCurrency === 'JPY' ? 0 : 0,
+                maximumFractionDigits: currentCurrency === 'JPY' ? 0 : 0
+            };
+            
+            try {
+                return amount.toLocaleString(currency.locale, options);
+            } catch (e) {
+                // Fallback if locale formatting fails
+                return currency.symbol + amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                });
+            }
         }
 
         window.addEventListener('load', function() {

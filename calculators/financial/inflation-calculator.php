@@ -304,6 +304,46 @@
             border-color: #C2185B;
         }
         
+        .currency-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .currency-option {
+            background: #f8f9fa;
+            padding: 12px 8px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .currency-option.active {
+            background: #E91E63;
+            color: white;
+            border-color: #C2185B;
+        }
+        
+        .currency-flag {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .currency-code {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .currency-name {
+            font-size: 0.7em;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+        
         .historical-data {
             background: #e3f2fd;
             padding: 20px;
@@ -446,6 +486,10 @@
             .comparison-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .currency-selector {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
     </style>
 
@@ -458,6 +502,14 @@
             <div class="calculator-section">
                 <h2>Inflation Calculation</h2>
                 <form id="inflationForm">
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <div class="currency-selector" id="currencySelector">
+                            <!-- Currency options will be populated by JavaScript -->
+                        </div>
+                        <input type="hidden" id="selectedCurrency" value="USD">
+                    </div>
+                    
                     <div class="form-group">
                         <label>Calculation Type</label>
                         <div class="calculator-options">
@@ -723,6 +775,22 @@
         const calculationOptions = document.querySelectorAll('.calculator-option');
         const rateOptions = document.querySelectorAll('.rate-option');
         
+        // Currency data with exchange rates (simplified - in real app, use API)
+        const currencies = {
+            USD: { symbol: '$', code: 'USD', name: 'US Dollar', flag: '🇺🇸', exchangeRate: 1 },
+            EUR: { symbol: '€', code: 'EUR', name: 'Euro', flag: '🇪🇺', exchangeRate: 0.92 },
+            GBP: { symbol: '£', code: 'GBP', name: 'British Pound', flag: '🇬🇧', exchangeRate: 0.79 },
+            JPY: { symbol: '¥', code: 'JPY', name: 'Japanese Yen', flag: '🇯🇵', exchangeRate: 150 },
+            CAD: { symbol: 'C$', code: 'CAD', name: 'Canadian Dollar', flag: '🇨🇦', exchangeRate: 1.35 },
+            AUD: { symbol: 'A$', code: 'AUD', name: 'Australian Dollar', flag: '🇦🇺', exchangeRate: 1.52 },
+            CHF: { symbol: 'CHF', code: 'CHF', name: 'Swiss Franc', flag: '🇨🇭', exchangeRate: 0.88 },
+            CNY: { symbol: '¥', code: 'CNY', name: 'Chinese Yuan', flag: '🇨🇳', exchangeRate: 7.18 },
+            INR: { symbol: '₹', code: 'INR', name: 'Indian Rupee', flag: '🇮🇳', exchangeRate: 83 },
+            BRL: { symbol: 'R$', code: 'BRL', name: 'Brazilian Real', flag: '🇧🇷', exchangeRate: 4.95 },
+            MXN: { symbol: 'MX$', code: 'MXN', name: 'Mexican Peso', flag: '🇲🇽', exchangeRate: 17.05 },
+            ZAR: { symbol: 'R', code: 'ZAR', name: 'South African Rand', flag: '🇿🇦', exchangeRate: 18.75 }
+        };
+        
         // Historical CPI data (simplified)
         const cpiData = {
             2023: 307.051,
@@ -752,6 +820,32 @@
             1955: 26.800,
             1950: 24.100
         };
+        
+        // Initialize currency selector
+        function initializeCurrencySelector() {
+            const currencySelector = document.getElementById('currencySelector');
+            
+            Object.values(currencies).forEach(currency => {
+                const option = document.createElement('div');
+                option.className = `currency-option ${currency.code === 'USD' ? 'active' : ''}`;
+                option.dataset.currency = currency.code;
+                
+                option.innerHTML = `
+                    <div class="currency-flag">${currency.flag}</div>
+                    <div class="currency-code">${currency.code}</div>
+                    <div class="currency-name">${currency.name}</div>
+                `;
+                
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.currency-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('selectedCurrency').value = currency.code;
+                    calculateInflation();
+                });
+                
+                currencySelector.appendChild(option);
+            });
+        }
         
         // Calculation type selection
         calculationOptions.forEach(option => {
@@ -798,6 +892,8 @@
         });
 
         function calculateInflation() {
+            const selectedCurrency = document.getElementById('selectedCurrency').value;
+            const currency = currencies[selectedCurrency];
             const calcType = document.getElementById('calculationType').value;
             const amount = parseFloat(document.getElementById('amount').value) || 0;
             const rateSource = document.getElementById('rateSource').value;
@@ -841,37 +937,37 @@
                 inflationAmount = adjustedValue - amount;
             }
             
-            // Update UI
+            // Update UI with currency formatting
             const card = document.getElementById('resultCard');
             if (calcType === 'purchasing') {
                 card.className = 'result-card purchasing-power';
                 document.getElementById('resultDescription').textContent = `in ${endYear} dollars`;
-                document.getElementById('adjustedValue').textContent = formatCurrency(adjustedValue);
+                document.getElementById('adjustedValue').textContent = formatCurrency(adjustedValue, currency);
                 document.getElementById('valueChange').textContent = `+${cumulativeInflation.toFixed(1)}%`;
             } else {
                 card.className = 'result-card future-cost';
                 document.getElementById('resultDescription').textContent = `in ${endYear} dollars`;
-                document.getElementById('adjustedValue').textContent = formatCurrency(adjustedValue);
+                document.getElementById('adjustedValue').textContent = formatCurrency(adjustedValue, currency);
                 document.getElementById('valueChange').textContent = `+${cumulativeInflation.toFixed(1)}%`;
             }
             
-            document.getElementById('originalValue').textContent = formatCurrency(amount);
+            document.getElementById('originalValue').textContent = formatCurrency(amount, currency);
             document.getElementById('inflationRate').textContent = `${(inflationRate * 100).toFixed(1)}% avg`;
             document.getElementById('timePeriod').textContent = `${years} years`;
             
-            document.getElementById('breakdownOriginal').textContent = formatCurrency(amount);
+            document.getElementById('breakdownOriginal').textContent = formatCurrency(amount, currency);
             document.getElementById('breakdownInflation').textContent = `${(inflationRate * 100).toFixed(1)}%`;
             document.getElementById('breakdownCumulative').textContent = `${cumulativeInflation.toFixed(1)}%`;
-            document.getElementById('breakdownInflationAmount').textContent = formatCurrency(inflationAmount);
-            document.getElementById('breakdownAdjusted').textContent = formatCurrency(adjustedValue);
+            document.getElementById('breakdownInflationAmount').textContent = formatCurrency(inflationAmount, currency);
+            document.getElementById('breakdownAdjusted').textContent = formatCurrency(adjustedValue, currency);
             
             // Update timeline
             document.getElementById('timelineStartYear').textContent = startYear;
             document.getElementById('timelineEndYear').textContent = endYear;
             document.getElementById('timelineText').textContent = 
                 calcType === 'purchasing' 
-                    ? `${formatCurrency(amount)} in ${startYear} = ${formatCurrency(adjustedValue)} in ${endYear}`
-                    : `${formatCurrency(amount)} today = ${formatCurrency(adjustedValue)} in ${endYear}`;
+                    ? `${formatCurrency(amount, currency)} in ${startYear} = ${formatCurrency(adjustedValue, currency)} in ${endYear}`
+                    : `${formatCurrency(amount, currency)} today = ${formatCurrency(adjustedValue, currency)} in ${endYear}`;
             
             // Update impact visual
             const currentHeight = calcType === 'purchasing' ? 80 : 100;
@@ -881,17 +977,17 @@
             document.getElementById('futureValueBar').style.height = `${futureHeight}%`;
             
             document.getElementById('currentLabel').textContent = 
-                calcType === 'purchasing' ? `${startYear}: ${formatCurrency(amount)}` : `Today: ${formatCurrency(amount)}`;
+                calcType === 'purchasing' ? `${startYear}: ${formatCurrency(amount, currency)}` : `Today: ${formatCurrency(amount, currency)}`;
             document.getElementById('futureLabel').textContent = 
-                calcType === 'purchasing' ? `${endYear}: ${formatCurrency(adjustedValue)}` : `${endYear}: ${formatCurrency(adjustedValue)}`;
+                calcType === 'purchasing' ? `${endYear}: ${formatCurrency(adjustedValue, currency)}` : `${endYear}: ${formatCurrency(adjustedValue, currency)}`;
             
             document.getElementById('impactText').textContent = 
                 calcType === 'purchasing'
-                    ? `To maintain the same purchasing power, you would need ${formatCurrency(adjustedValue)} in ${endYear} to equal ${formatCurrency(amount)} in ${startYear}.`
-                    : `With ${(inflationRate * 100).toFixed(1)}% annual inflation, ${formatCurrency(amount)} today will only be worth ${formatCurrency(adjustedValue)} in ${endYear} purchasing power.`;
+                    ? `To maintain the same purchasing power, you would need ${formatCurrency(adjustedValue, currency)} in ${endYear} to equal ${formatCurrency(amount, currency)} in ${startYear}.`
+                    : `With ${(inflationRate * 100).toFixed(1)}% annual inflation, ${formatCurrency(amount, currency)} today will only be worth ${formatCurrency(adjustedValue, currency)} in ${endYear} purchasing power.`;
             
             // Update common item comparisons
-            updateCommonItems(startYear, endYear, amount, adjustedValue);
+            updateCommonItems(startYear, endYear, amount, adjustedValue, currency);
             
             // Update investment implications
             document.getElementById('implicationsText').textContent = 
@@ -924,8 +1020,8 @@
             return cpiData[closestYear];
         }
         
-        function updateCommonItems(startYear, endYear, originalAmount, adjustedAmount) {
-            // Common item prices (simplified estimates)
+        function updateCommonItems(startYear, endYear, originalAmount, adjustedAmount, currency) {
+            // Common item prices in USD (simplified estimates)
             const items = {
                 meal: { then: 5.00, now: 9.00 },
                 gas: { then: 1.50, now: 3.50 },
@@ -936,42 +1032,53 @@
             // Calculate adjusted prices based on the same inflation rate
             const inflationFactor = adjustedAmount / originalAmount;
             
+            // Convert prices to selected currency
+            const convertPrice = (price) => price * currency.exchangeRate;
+            
             document.getElementById('mealThenYear').textContent = startYear;
-            document.getElementById('mealThenPrice').textContent = formatCurrency(items.meal.then);
+            document.getElementById('mealThenPrice').textContent = formatCurrency(convertPrice(items.meal.then), currency);
             document.getElementById('mealNowYear').textContent = endYear;
-            document.getElementById('mealNowPrice').textContent = formatCurrency(items.meal.then * inflationFactor);
+            document.getElementById('mealNowPrice').textContent = formatCurrency(convertPrice(items.meal.then * inflationFactor), currency);
             
             document.getElementById('gasThenYear').textContent = startYear;
-            document.getElementById('gasThenPrice').textContent = formatCurrency(items.gas.then);
+            document.getElementById('gasThenPrice').textContent = formatCurrency(convertPrice(items.gas.then), currency);
             document.getElementById('gasNowYear').textContent = endYear;
-            document.getElementById('gasNowPrice').textContent = formatCurrency(items.gas.then * inflationFactor);
+            document.getElementById('gasNowPrice').textContent = formatCurrency(convertPrice(items.gas.then * inflationFactor), currency);
             
             document.getElementById('movieThenYear').textContent = startYear;
-            document.getElementById('movieThenPrice').textContent = formatCurrency(items.movie.then);
+            document.getElementById('movieThenPrice').textContent = formatCurrency(convertPrice(items.movie.then), currency);
             document.getElementById('movieNowYear').textContent = endYear;
-            document.getElementById('movieNowPrice').textContent = formatCurrency(items.movie.then * inflationFactor);
+            document.getElementById('movieNowPrice').textContent = formatCurrency(convertPrice(items.movie.then * inflationFactor), currency);
             
             document.getElementById('homeThenYear').textContent = startYear;
-            document.getElementById('homeThenPrice').textContent = formatCurrency(items.home.then);
+            document.getElementById('homeThenPrice').textContent = formatCurrency(convertPrice(items.home.then), currency);
             document.getElementById('homeNowYear').textContent = endYear;
-            document.getElementById('homeNowPrice').textContent = formatCurrency(items.home.then * inflationFactor);
+            document.getElementById('homeNowPrice').textContent = formatCurrency(convertPrice(items.home.then * inflationFactor), currency);
         }
         
-        function formatCurrency(amount) {
-            if (amount >= 1000) {
-                return '$' + amount.toLocaleString('en-US', {
+        function formatCurrency(amount, currency) {
+            // For currencies like JPY that typically don't use decimals
+            const useDecimals = !['JPY'].includes(currency.code);
+            
+            // Convert amount to selected currency
+            const convertedAmount = amount * currency.exchangeRate;
+            
+            if (convertedAmount >= 1000 && useDecimals) {
+                return currency.symbol + convertedAmount.toLocaleString('en-US', {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0
                 });
             } else {
-                return '$' + amount.toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                return currency.symbol + convertedAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: useDecimals ? 2 : 0,
+                    maximumFractionDigits: useDecimals ? 2 : 0
                 });
             }
         }
 
+        // Initialize the calculator
         window.addEventListener('load', function() {
+            initializeCurrencySelector();
             calculateInflation();
         });
     </script>
