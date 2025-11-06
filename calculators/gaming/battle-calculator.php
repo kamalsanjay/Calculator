@@ -133,12 +133,16 @@
 </head>
 <body>
     <div class="container">
+        
         <div class="header">
             <h1>⚔️ Battle Calculator</h1>
             <p>Advanced combat analysis for RPGs, strategy games, and tactical simulations with damage calculation and probability analysis</p>
         </div>
 
         <div class="calculator-card">
+             <!-- <div class="breadcrumb">
+                <a href="index.php">← Back to Financial Calculators</a>
+            </div> -->
             <div class="battle-setup">
                 <!-- Attacker Section -->
                 <div class="combatant-card active" id="attackerCard">
